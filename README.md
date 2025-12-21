@@ -2,6 +2,9 @@
 
 ## Complete Folder Structure
 
+## Local Development Setup
+Create `sis_backend/settings/development.py` based on `base.py`
+
 ```text
 student-information-system-SIS/
 │
@@ -149,3 +152,4 @@ student-information-system-SIS/
 ├── README.md
 └── LICENSE
 ```
+

@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
-    'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
     
@@ -95,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
+# USE_L10N = True
 USE_TZ = True
 
 LANGUAGES = [
