@@ -1,7 +1,8 @@
-# student-information-system-SIS
+# Student Information System (SIS)
 
 ## Complete Folder Structure
-```
+
+```text
 student-information-system-SIS/
 │
 ├── venv/                          # Virtual environment (not in git)
@@ -140,11 +141,11 @@ student-information-system-SIS/
 │   └── backup_database.sh
 │
 ├── .env.example                   # Environment variables template
-├── .env                          # Environment variables (not in git)
+├── .env                           # Environment variables (not in git)
 ├── .gitignore
 ├── manage.py
 ├── requirements.txt
-├── pytest.ini                    # Pytest configuration
+├── pytest.ini                     # Pytest configuration
 ├── README.md
 └── LICENSE
 ```
