@@ -56,3 +56,6 @@ htmlcov/
 # Logs
 logs/
 *.log
+
+# Django settings (local/dev only)
+sis_backend/settings/*development*.py
