@@ -4,7 +4,7 @@ Development-specific Django settings.
 from .base import *
 from decouple import config
 
-DEBUG = True
+DEBUG = False
 
 # Database - SQLite for development
 DATABASES = {
