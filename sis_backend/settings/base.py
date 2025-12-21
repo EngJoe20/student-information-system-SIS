@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.AuditLogMiddleware',
+    # 'core.middleware.AuditLogMiddleware',
 ]
 
 ROOT_URLCONF = 'sis_backend.urls'
