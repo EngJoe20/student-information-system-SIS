@@ -25,9 +25,11 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
-    # 'rest_framework_simplejwt',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
+    'drf_yasg',
     
     # Local apps
     'accounts.apps.AccountsConfig',
@@ -48,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'core.middleware.AuditLogMiddleware',
+    'core.middleware.AuditLogMiddleware',
 ]
 
 ROOT_URLCONF = 'sis_backend.urls'
@@ -95,7 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-# USE_L10N = True
+USE_L10N = True
 USE_TZ = True
 
 LANGUAGES = [
@@ -108,7 +110,9 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Don't use STATICFILES_DIRS in this setup
+# Static files will be collected from each app's static folder
 
 # Media files
 MEDIA_URL = '/media/'
