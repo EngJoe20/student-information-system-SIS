@@ -7,6 +7,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+
 from students.models import Student, Enrollment
 from students.serializers import (
     StudentSerializer, StudentCreateSerializer, StudentUpdateSerializer,
@@ -16,6 +21,12 @@ from accounts.permissions import IsAdmin, IsAdminOrRegistrar, IsOwnerOrAdmin
 from core.utils import StandardResponse
 from core.pagination import StandardResultsPagination
 
+from attendance.models import Attendance
+from attendance.serializers import AttendanceSerializer
+
+from django.db.models import Avg
+from attendance.models import Attendance
+from grades.models import Grade
 
 class StudentViewSet(viewsets.ModelViewSet):
     """ViewSet for student management."""
@@ -203,6 +214,143 @@ class StudentViewSet(viewsets.ModelViewSet):
             StandardResponse.success(data=serializer.data),
             status=status.HTTP_200_OK
         )
+    @swagger_auto_schema(
+    method='get',
+    operation_summary="Student Attendance",
+    operation_description="Get student attendance records"
+    )
+    @action(detail=True, methods=['get'], url_path='attendance')
+    def attendance(self, request, pk=None):
+        """
+        Get student attendance records.
+        """
+        student = self.get_object()
+
+        semester = request.query_params.get('semester')
+        academic_year = request.query_params.get('academic_year')
+
+        attendance_qs = Attendance.objects.select_related(
+            'class_instance',
+            'class_instance__course'
+        ).filter(student=student)
+
+        if semester:
+            attendance_qs = attendance_qs.filter(
+                class_instance__semester=semester
+            )
+
+        if academic_year:
+            attendance_qs = attendance_qs.filter(
+                class_instance__academic_year=academic_year
+            )
+
+        data = [
+            {
+                "course": a.class_instance.course.name,
+                "date": a.date,
+                "status": a.status
+            }
+            for a in attendance_qs
+        ]
+
+        return Response(
+            StandardResponse.success(data=data),
+            status=status.HTTP_200_OK
+        )
+    @swagger_auto_schema(
+    method='get',
+    operation_summary="Student Grades",
+    operation_description="Get student grades"
+    )   
+    @action(detail=True, methods=['get'], url_path='grades')
+    def grades(self, request, pk=None):
+        """
+        Get student grades.
+        """
+        student = self.get_object()
+
+        semester = request.query_params.get('semester')
+        academic_year = request.query_params.get('academic_year')
+
+        grades_qs = Grade.objects.select_related(
+            'class_instance',
+            'class_instance__course'
+        ).filter(student=student)
+
+        if semester:
+            grades_qs = grades_qs.filter(
+                class_instance__semester=semester
+            )
+
+        if academic_year:
+            grades_qs = grades_qs.filter(
+                class_instance__academic_year=academic_year
+            )
+
+        data = [
+            {
+                "course": g.class_instance.course.name,
+                "grade": g.grade,
+                "status": g.status
+            }
+            for g in grades_qs
+        ]
+
+        return Response(
+            StandardResponse.success(data=data),
+            status=status.HTTP_200_OK
+        )
+    @swagger_auto_schema(
+        method='get',
+        operation_summary="Student Transcript",
+        operation_description="Get student academic transcript"
+    )
+    @action(detail=True, methods=['get'], url_path='transcript')
+    def transcript(self, request, pk=None):
+        """
+        Get student academic transcript.
+        """
+        student = self.get_object()
+
+        completed = Enrollment.objects.select_related(
+            'class_instance',
+            'class_instance__course'
+        ).filter(
+            student=student,
+            status='COMPLETED'
+        )
+
+        transcript = []
+        total_points = 0
+        total_credits = 0
+
+        for e in completed:
+            credits = e.class_instance.course.credits
+            grade_point = e.grade_point  # assume stored on enrollment
+
+            transcript.append({
+                "course": e.class_instance.course.name,
+                "credits": credits,
+                "grade": e.final_grade,
+                "grade_point": grade_point
+            })
+
+            total_points += grade_point * credits
+            total_credits += credits
+
+        gpa = round(total_points / total_credits, 2) if total_credits else 0
+
+        return Response(
+            StandardResponse.success(
+                data={
+                    "student": student.student_id,
+                    "gpa": gpa,
+                    "courses": transcript
+                }
+            ),
+            status=status.HTTP_200_OK
+        )
+
 
 
 class EnrollmentViewSet(viewsets.ModelViewSet):

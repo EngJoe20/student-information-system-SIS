@@ -266,114 +266,149 @@ POST   /api/v1/auth/password-reset/
 POST   /api/v1/auth/password-reset-confirm/
 ```
 
-### User Management (7 endpoints)
+### User Management (11 endpoints)
 ```
 GET    /api/v1/users/
 POST   /api/v1/users/
+POST   /api/v1/users/disable-2fa/
+POST   /api/v1/users/enable-2fa/
+POST   /api/v1/users/verify-2fa-setup/
 GET    /api/v1/users/{id}/
 PUT    /api/v1/users/{id}/
+PATCH  /api/v1/users/{id}/
 DELETE /api/v1/users/{id}/
 POST   /api/v1/users/{id}/assign-role/
 GET    /api/v1/users/me/
 ```
 
-### Students (8 endpoints)
+### Students (10 endpoints)
 ```
 GET    /api/v1/students/
 POST   /api/v1/students/
 GET    /api/v1/students/{id}/
 PUT    /api/v1/students/{id}/
+PATCH  /api/v1/students/{id}/
+DELETE /api/v1/students/{id}/
 GET    /api/v1/students/{id}/enrollments/
 GET    /api/v1/students/{id}/attendance/
 GET    /api/v1/students/{id}/grades/
 GET    /api/v1/students/{id}/transcript/
 ```
 
-### Courses & Classes (12 endpoints)
+### Courses & Classes (15 endpoints)
 ```
 GET    /api/v1/courses/
 POST   /api/v1/courses/
 GET    /api/v1/courses/{id}/
 PUT    /api/v1/courses/{id}/
+PATCH  /api/v1/courses/{id}/
 DELETE /api/v1/courses/{id}/
+
 GET    /api/v1/classes/
 POST   /api/v1/classes/
 GET    /api/v1/classes/{id}/
 PUT    /api/v1/classes/{id}/
+PATCH  /api/v1/classes/{id}/
 GET    /api/v1/classes/timetable/
+DELETE /api/v1/classes/{id}/
 GET    /api/v1/classes/{id}/attendance/
 GET    /api/v1/classes/{id}/roster/
 ```
 
-### Enrollment (3 endpoints)
+### Enrollment (6 endpoints)
 ```
-POST   /api/v1/enrollments/
-DELETE /api/v1/enrollments/{id}/
 GET    /api/v1/enrollments/
+POST   /api/v1/enrollments/
+GET    /api/v1/enrollments/{id}/
+PUT    /api/v1/enrollments/{id}/
+PATCH  /api/v1/enrollments/{id}/
+DELETE /api/v1/enrollments/{id}/
 ```
 
-### Attendance (4 endpoints)
+### Attendance (9 endpoints)
 ```
+GET    /api/v1/attendance/
 POST   /api/v1/attendance/
+POST   /api/v1/attendance/bulk-record/
+GET    /api/v1/attendance/class/{class_id}/
+GET    /api/v1/attendance/student/{student_id}/
+GET    /api/v1/attendance/{id}/
 PUT    /api/v1/attendance/{id}/
-GET    /api/v1/attendance/student/{id}/
-GET    /api/v1/attendance/class/{id}/
+PATCH  /api/v1/attendance/{id}/
+DELETE /api/v1/attendance/{id}/
 ```
 
-### Grades (5 endpoints)
+### Grades (9 endpoints)
 ```
+GET    /api/v1/grades/
 POST   /api/v1/grades/
+GET    /api/v1/grades/class/{class_id}/statistics/
+POST   /api/v1/grades/enrollment/{enrollment_id}/finalize/
+GET    /api/v1/grades/student/{student_id}/
+GET    /api/v1/grades/{id}/
 PUT    /api/v1/grades/{id}/
-GET    /api/v1/grades/student/{id}/
-POST   /api/v1/enrollments/{id}/finalize-grade/
-GET    /api/v1/grades/statistics/
+PATCH  /api/v1/grades/{id}/
+DELETE /api/v1/grades/{id}/
 ```
 
-### Exams (3 endpoints)
+### Exams (6 endpoints)
 ```
 GET    /api/v1/exams/
 POST   /api/v1/exams/
+GET    /api/v1/exams/{id}/
 PUT    /api/v1/exams/{id}/
+PATCH  /api/v1/exams/{id}/
+DELETE /api/v1/exams/{id}/
 ```
 
-### Rooms (5 endpoints)
+### Rooms (7 endpoints)
 ```
 GET    /api/v1/rooms/
 POST   /api/v1/rooms/
-PUT    /api/v1/rooms/{id}/
-DELETE /api/v1/rooms/{id}/
 GET    /api/v1/rooms/available/
+GET    /api/v1/rooms/{id}/
+PUT    /api/v1/rooms/{id}/
+PATCH  /api/v1/rooms/{id}/
+DELETE /api/v1/rooms/{id}/
 ```
 
-### Notifications (4 endpoints)
+### Notifications (8 endpoints)
 ```
 GET    /api/v1/notifications/
-PUT    /api/v1/notifications/{id}/mark-read/
+POST   /api/v1/notifications/
 POST   /api/v1/notifications/mark-all-read/
+GET    /api/v1/notifications/{id}/
+PUT    /api/v1/notifications/{id}/
+PATCH  /api/v1/notifications/{id}/
 DELETE /api/v1/notifications/{id}/
+PUT    /api/v1/notifications/{id}/mark-read/
 ```
 
-### Messages (4 endpoints)
+### Messages (6 endpoints)
 ```
 GET    /api/v1/messages/
 POST   /api/v1/messages/
 GET    /api/v1/messages/{id}/
+PUT    /api/v1/messages/{id}/
+PATCH  /api/v1/messages/{id}/
 DELETE /api/v1/messages/{id}/
 ```
 
-### Student Requests (4 endpoints)
+### Student Requests (6 endpoints)
 ```
 GET    /api/v1/student-requests/
 POST   /api/v1/student-requests/
 GET    /api/v1/student-requests/{id}/
 PUT    /api/v1/student-requests/{id}/
+PATCH  /api/v1/student-requests/{id}/
+DELETE /api/v1/student-requests/{id}/
 ```
 
 ### Reports (3 endpoints)
 ```
-GET    /api/v1/reports/transcript/{student_id}/
 POST   /api/v1/reports/attendance/
 POST   /api/v1/reports/grades/
+GET    /api/v1/reports/transcript/{student_id}/
 ```
 
 ### Dashboards (3 endpoints)
@@ -703,5 +738,5 @@ The Student Information System is fully functional and ready for deployment. All
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: December 2024  
+**Last Updated**: December 2025 
 **Status**: Complete ✅

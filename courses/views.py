@@ -18,6 +18,11 @@ from accounts.permissions import IsAdmin, IsAdminOrReadOnly, IsAdminOrRegistrar
 from core.utils import StandardResponse
 from core.pagination import StandardResultsPagination
 
+from attendance.models import Attendance
+from attendance.serializers import AttendanceSerializer
+from drf_yasg.utils import swagger_auto_schema
+
+from students.serializers import StudentListSerializer
 
 class CourseViewSet(viewsets.ModelViewSet):
     """ViewSet for course management."""
@@ -326,6 +331,69 @@ class ClassViewSet(viewsets.ModelViewSet):
                         for day, slots in timetable.items()
                         if slots
                     ]
+                }
+            ),
+            status=status.HTTP_200_OK
+        )
+    @swagger_auto_schema(
+    method='get',
+    operation_summary="Class Attendance",
+    operation_description="Get attendance records for a class"
+    )
+    @action(detail=True, methods=['get'], url_path='attendance')
+    def attendance(self, request, pk=None):
+        """
+        Get attendance records for a class.
+        """
+        class_instance = self.get_object()
+
+        date = request.query_params.get('date')
+        status_filter = request.query_params.get('status')
+
+        attendance_qs = Attendance.objects.select_related(
+            'student',
+            'student__user'
+        ).filter(class_instance=class_instance)
+
+        if date:
+            attendance_qs = attendance_qs.filter(date=date)
+
+        if status_filter:
+            attendance_qs = attendance_qs.filter(status=status_filter)
+
+        serializer = AttendanceSerializer(attendance_qs, many=True)
+
+        return Response(
+            StandardResponse.success(data=serializer.data),
+            status=status.HTTP_200_OK
+        )
+    @swagger_auto_schema(
+    method='get',
+    operation_summary="Class Roster",
+    operation_description="Get enrolled students in a class"
+    )
+    @action(detail=True, methods=['get'], url_path='roster')
+    def roster(self, request, pk=None):
+        """
+        Get enrolled students in class.
+        """
+        class_instance = self.get_object()
+
+        enrollments = class_instance.enrollments.select_related(
+            'student',
+            'student__user'
+        ).filter(status='ENROLLED')
+
+        students = [e.student for e in enrollments]
+
+        serializer = StudentListSerializer(students, many=True)
+
+        return Response(
+            StandardResponse.success(
+                data={
+                    "class": class_instance.id,
+                    "count": len(students),
+                    "students": serializer.data
                 }
             ),
             status=status.HTTP_200_OK
