@@ -102,7 +102,7 @@ class GradeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
     
-    def update(self, request, pk=None):
+    def update(self, request, pk=None, **kwargs):
         """
         Update grade.
         PUT /api/v1/grades/{id}/
@@ -119,8 +119,10 @@ class GradeViewSet(viewsets.ModelViewSet):
                     ),
                     status=status.HTTP_403_FORBIDDEN
                 )
+        #FIX: making partial as pagination        
+        partial= kwargs.pop('partial',False)
         
-        serializer = self.get_serializer(grade, data=request.data)
+        serializer = self.get_serializer(grade, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         

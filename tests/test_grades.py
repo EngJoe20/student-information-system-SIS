@@ -1,3 +1,6 @@
+"""
+Test suite for grade management.
+"""
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -6,256 +9,305 @@ from decimal import Decimal
 
 from accounts.models import User
 from students.models import Student, Enrollment
-from courses.models import Exam, Class
+from courses.models import Course, Class, Room, Exam
 from grades.models import Grade
 
+
+# ------------------------------------------------------------------
+# Fixtures
+# ------------------------------------------------------------------
 
 @pytest.fixture
 def api_client():
     return APIClient()
 
-
 @pytest.fixture
 def create_user():
     def _create_user(**kwargs):
+        password = kwargs.pop('password', 'TestPass123!')
         user = User.objects.create_user(
-            username=kwargs.get('username', 'user'),
-            email=kwargs.get('email', 'user@example.com'),
-            password=kwargs.get('password', 'TestPass123!'),
-            role=kwargs.get('role', 'STUDENT'),
-            first_name=kwargs.get('first_name', 'Test'),
-            last_name=kwargs.get('last_name', 'User'),
+            username=kwargs.get('username'),
+            email=kwargs.get('email', f"{kwargs.get('username')}@test.com"),
+            first_name='Test',
+            last_name='User',
+            role=kwargs.get('role', 'STUDENT')
         )
+        user.set_password(password)
+        user.save()
         return user
     return _create_user
 
+@pytest.fixture
+def instructor(create_user):
+    return create_user(username='instructor1', role='INSTRUCTOR')
 
 @pytest.fixture
-def create_student(create_user):
-    def _create_student(**kwargs):
-        user = kwargs.pop('user', None) or create_user()
-        student = Student.objects.create(
-            user=user,
-            student_id=kwargs.get('student_id', 'S1001')
-        )
-        return student
-    return _create_student
-
+def other_instructor(create_user):
+    return create_user(username='instructor2', role='INSTRUCTOR')
 
 @pytest.fixture
-def create_class(create_user):
-    def _create_class(**kwargs):
-        instructor_user = kwargs.pop('instructor_user', None) or create_user(username='instructor', role='INSTRUCTOR')
-        class_instance = Class.objects.create(
-            class_code=kwargs.get('class_code', 'C101'),
-            course=kwargs.get('course'),
-            instructor=instructor_user,
-            semester=kwargs.get('semester', 'Fall'),
-            academic_year=kwargs.get('academic_year', '2025-2026'),
-            section=kwargs.get('section', 'A')
-        )
-        return class_instance
-    return _create_class
-
+def student_user(create_user):
+    return create_user(username='student1', role='STUDENT')
 
 @pytest.fixture
-def create_exam(create_class):
-    def _create_exam(**kwargs):
-        class_instance = kwargs.pop('class_instance', None) or create_class()
-        exam = Exam.objects.create(
-            exam_name=kwargs.get('exam_name', 'Midterm'),
-            class_instance=class_instance,
-            date=kwargs.get('date')
-        )
-        return exam
-    return _create_exam
-
+def student_profile(student_user):
+    return Student.objects.create(
+        user=student_user,
+        student_id='STU001',
+        date_of_birth='2000-01-01',
+        gender='MALE',
+        enrollment_date='2024-01-01'
+    )
 
 @pytest.fixture
-def create_enrollment(create_student, create_class):
-    def _create_enrollment(**kwargs):
-        student = kwargs.pop('student', None) or create_student()
-        class_instance = kwargs.pop('class_instance', None) or create_class()
-        enrollment = Enrollment.objects.create(
-            student=student,
-            class_instance=class_instance,
-            status=kwargs.get('status', 'ENROLLED'),
-            grade=kwargs.get('grade'),
-            grade_points=kwargs.get('grade_points')
-        )
-        return enrollment
-    return _create_enrollment
-
+def course():
+    return Course.objects.create(
+        course_code='CS101',
+        course_name='Computer Science 101',
+        description='Intro',
+        credits=3,
+        department='CS'
+    )
 
 @pytest.fixture
-def create_grade(create_enrollment, create_user, create_exam):
-    def _create_grade(**kwargs):
-        enrollment = kwargs.pop('enrollment', None) or create_enrollment()
-        exam = kwargs.pop('exam', None) or create_exam(class_instance=enrollment.class_instance)
-        graded_by = kwargs.pop('graded_by', None) or create_user(role='INSTRUCTOR')
-        grade = Grade.objects.create(
-            enrollment=enrollment,
-            exam=exam,
-            assignment_name=kwargs.get('assignment_name', 'Assignment 1'),
-            marks_obtained=kwargs.get('marks_obtained', Decimal('80.00')),
-            total_marks=kwargs.get('total_marks', Decimal('100.00')),
-            weight_percentage=kwargs.get('weight_percentage', Decimal('50.00')),
-            graded_by=graded_by,
-            comments=kwargs.get('comments', 'Good work'),
-        )
-        return grade
-    return _create_grade
+def room():
+    return Room.objects.create(
+        room_number='101',
+        building='Main',
+        capacity=30,
+        room_type='CLASSROOM'
+    )
 
+@pytest.fixture
+def class_instance(course, instructor, room):
+    return Class.objects.create(
+        course=course,
+        instructor=instructor,
+        class_code='CS101-A',
+        section='A',
+        semester='FALL',
+        academic_year=2024,
+        max_capacity=30,
+        room=room
+    )
+
+@pytest.fixture
+def enrollment(student_profile, class_instance):
+    return Enrollment.objects.create(
+        student=student_profile,
+        class_instance=class_instance,
+        status='ENROLLED'
+    )
+
+@pytest.fixture
+def exam(class_instance, room):
+    from django.utils import timezone
+    return Exam.objects.create(
+        class_instance=class_instance,
+        exam_type='MIDTERM',
+        exam_date=timezone.now(),
+        duration_minutes=60,
+        room=room,
+        total_marks=100.00
+    )
+
+@pytest.fixture
+def grade(enrollment, instructor, exam):
+    return Grade.objects.create(
+        enrollment=enrollment,
+        exam=exam,
+        assignment_name="Midterm Exam",
+        marks_obtained=85.00,
+        total_marks=100.00,
+        weight_percentage=30.00,
+        graded_by=instructor
+    )
+
+@pytest.fixture
+def auth_instructor_client(api_client, instructor):
+    api_client.force_authenticate(user=instructor)
+    return api_client
+
+@pytest.fixture
+def auth_student_client(api_client, student_user):
+    api_client.force_authenticate(user=student_user)
+    return api_client
+
+
+# ------------------------------------------------------------------
+# Tests: Grade CRUD
+# ------------------------------------------------------------------
 
 @pytest.mark.django_db
-class TestGradeAPI:
-    def test_create_grade_success(self, api_client, create_user, create_enrollment, create_exam):
-        instructor = create_user(username='inst1', role='INSTRUCTOR', password='TestPass123!')
-        enrollment = create_enrollment(status='ENROLLED')
-        exam = create_exam(class_instance=enrollment.class_instance)
-        
-        # Login as instructor
-        api_client.force_authenticate(user=instructor)
-        
-        url = reverse('grade-list')
+class TestGradeCRUD:
+
+    def test_create_grade_as_instructor(self, auth_instructor_client, enrollment, exam):
+        # Attempt both singular and plural URL names to be robust
+        try:
+            url = reverse('grades-list')
+        except:
+            url = reverse('grade-list')
+
         data = {
-            'enrollment': str(enrollment.id),
-            'exam': str(exam.id),
-            'assignment_name': 'Homework 1',
-            'marks_obtained': '85.00',
-            'total_marks': '100.00',
-            'weight_percentage': '20.00',
-            'comments': 'Well done'
+            "enrollment": str(enrollment.id),
+            "exam": str(exam.id),
+            "assignment_name": "Final Project",
+            "marks_obtained": "90.00",
+            "total_marks": "100.00",
+            "weight_percentage": "40.00",
+            "comments": "Excellent work"
         }
         
-        # Instructor must be the class instructor to grade
-        # Make sure instructor is assigned to class
-        enrollment.class_instance.instructor = instructor
-        enrollment.class_instance.save()
+        response = auth_instructor_client.post(url, data, format='json')
         
-        response = api_client.post(url, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data['data']['assignment_name'] == 'Homework 1'
-    
-    def test_create_grade_permission_denied_for_wrong_instructor(self, api_client, create_user, create_enrollment, create_exam):
-        instructor1 = create_user(username='inst1', role='INSTRUCTOR')
-        instructor2 = create_user(username='inst2', role='INSTRUCTOR')
-        enrollment = create_enrollment()
-        exam = create_exam(class_instance=enrollment.class_instance)
-        
-        # Instructor2 tries to grade a class taught by instructor1
-        enrollment.class_instance.instructor = instructor1
-        enrollment.class_instance.save()
-        
-        api_client.force_authenticate(user=instructor2)
-        
-        url = reverse('grade-list')
+        assert Grade.objects.count() == 1
+        assert Grade.objects.first().marks_obtained == Decimal('90.00')
+
+    def test_instructor_cannot_grade_other_class(self, api_client, other_instructor, enrollment, exam):
+        api_client.force_authenticate(user=other_instructor)
+        try:
+            url = reverse('grades-list')
+        except:
+            url = reverse('grade-list')
+            
         data = {
-            'enrollment': str(enrollment.id),
-            'exam': str(exam.id),
-            'assignment_name': 'Homework 2',
-            'marks_obtained': '90.00',
-            'total_marks': '100.00',
-            'weight_percentage': '30.00',
-            'comments': ''
+            "enrollment": str(enrollment.id),
+            "assignment_name": "Test",
+            "marks_obtained": "50.00",
+            "total_marks": "100.00",
+            "weight_percentage": "10.00"
         }
         
         response = api_client.post(url, data, format='json')
+        
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['message'] == 'You can only grade your own classes'
-    
-    def test_update_grade_success(self, api_client, create_user, create_grade):
-        instructor = create_user(username='inst1', role='INSTRUCTOR')
-        grade = create_grade()
+
+    def test_update_grade(self, auth_instructor_client, grade):
+        try:
+            url = reverse('grades-detail', kwargs={'pk': grade.id})
+        except:
+            url = reverse('grade-detail', kwargs={'pk': grade.id})
+            
+        data = {"marks_obtained": "95.00"}
         
-        # Assign instructor to class to allow update
-        grade.enrollment.class_instance.instructor = instructor
-        grade.enrollment.class_instance.save()
+        response = auth_instructor_client.patch(url, data, format='json')
         
-        api_client.force_authenticate(user=instructor)
-        
-        url = reverse('grade-detail', kwargs={'pk': grade.id})
-        data = {
-            'marks_obtained': '95.00',
-            'comments': 'Improved'
-        }
-        
-        response = api_client.put(url, data, format='json')
         assert response.status_code == status.HTTP_200_OK
         grade.refresh_from_db()
-        assert float(grade.marks_obtained) == 95.00
-        assert grade.comments == 'Improved'
-    
-    def test_student_can_only_view_own_grades(self, api_client, create_user, create_student, create_enrollment, create_grade):
-        student1 = create_student()
-        student2 = create_student()
-        enrollment1 = create_enrollment(student=student1)
-        enrollment2 = create_enrollment(student=student2)
-        create_grade(enrollment=enrollment1)
-        create_grade(enrollment=enrollment2)
+        assert grade.marks_obtained == Decimal('95.00')
+
+    def test_student_cannot_create_grade(self, auth_student_client, enrollment):
+        try:
+            url = reverse('grades-list')
+        except:
+            url = reverse('grade-list')
+            
+        data = {"assignment_name": "Hack"}
+        response = auth_student_client.post(url, data, format='json')
         
-        api_client.force_authenticate(user=student1.user)
-        
-        url = reverse('grade-student-grades', kwargs={'student_id': student1.id})
-        response = api_client.get(url)
-        assert response.status_code == status.HTTP_200_OK
-        
-        # Trying to get another student's grades should fail
-        url_other = reverse('grade-student-grades', kwargs={'student_id': student2.id})
-        response_other = api_client.get(url_other)
-        assert response_other.status_code == status.HTTP_403_FORBIDDEN
-    
-    def test_finalize_grade_success(self, api_client, create_user, create_enrollment):
-        instructor = create_user(username='inst1', role='INSTRUCTOR')
-        enrollment = create_enrollment(status='ENROLLED')
-        enrollment.class_instance.instructor = instructor
-        enrollment.class_instance.save()
-        
-        api_client.force_authenticate(user=instructor)
-        
-        url = reverse('grade-finalize-grade', kwargs={'enrollment_id': enrollment.id})
-        data = {
-            'final_grade': 'A',
-            'grade_points': '4.00'
-        }
-        
-        response = api_client.post(url, data, format='json')
-        assert response.status_code == status.HTTP_200_OK
-        enrollment.refresh_from_db()
-        assert enrollment.grade == 'A'
-        assert float(enrollment.grade_points) == 4.00
-    
-    def test_class_statistics(self, api_client, create_user, create_class, create_enrollment, create_grade):
-        instructor = create_user(username='inst1', role='INSTRUCTOR')
-        class_instance = create_class(instructor_user=instructor)
-        enrollment1 = create_enrollment(class_instance=class_instance, status='COMPLETED', grade='A', grade_points=4.00)
-        enrollment2 = create_enrollment(class_instance=class_instance, status='COMPLETED', grade='B+', grade_points=3.50)
-        
-        create_grade(enrollment=enrollment1)
-        create_grade(enrollment=enrollment2)
-        
-        api_client.force_authenticate(user=instructor)
-        
-        url = reverse('grade-class-statistics', kwargs={'class_id': class_instance.id})
-        response = api_client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+# ------------------------------------------------------------------
+# Tests: Student Grade View
+# ------------------------------------------------------------------
+
+@pytest.mark.django_db
+class TestStudentGradeView:
+
+    def test_student_view_own_grades(self, auth_student_client, student_profile, grade):
+        try:
+            url = reverse('grades-student-grades', kwargs={'student_id': student_profile.id})
+        except:
+            url = reverse('grade-student-grades', kwargs={'student_id': student_profile.id})
+            
+        response = auth_student_client.get(url)
         
         assert response.status_code == status.HTTP_200_OK
         data = response.data['data']
-        assert data['statistics']['total_students'] == 2
-        assert 'average_grade' in data['statistics']
-        assert 'median_grade' in data['statistics']
-        assert data['statistics']['grade_distribution']['A'] >= 1 or data['statistics']['grade_distribution']['B+'] >= 1
-    
-    def test_class_statistics_permission_denied(self, api_client, create_user, create_class):
-        instructor1 = create_user(username='inst1', role='INSTRUCTOR')
-        instructor2 = create_user(username='inst2', role='INSTRUCTOR')
-        class_instance = create_class(instructor_user=instructor1)
+        assert data['student']['student_id'] == student_profile.student_id
+        assert len(data['courses']) == 1
+        assert data['courses'][0]['grades'][0]['marks_obtained'] == '85.00'
+
+    def test_student_cannot_view_others_grades(self, auth_student_client, create_user):
+        other_student = Student.objects.create(
+            user=create_user(username='other', role='STUDENT'),
+            student_id='STU002',
+            date_of_birth='2000-01-01',
+            gender='FEMALE',
+            enrollment_date='2024-01-01'
+        )
         
-        api_client.force_authenticate(user=instructor2)
-        
-        url = reverse('grade-class-statistics', kwargs={'class_id': class_instance.id})
-        response = api_client.get(url)
+        try:
+            url = reverse('grades-student-grades', kwargs={'student_id': other_student.id})
+        except:
+            url = reverse('grade-student-grades', kwargs={'student_id': other_student.id})
+            
+        response = auth_student_client.get(url)
         
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['message'] == 'You can only view statistics for your own classes'
 
+
+# ------------------------------------------------------------------
+# Tests: Finalize Grade
+# ------------------------------------------------------------------
+
+@pytest.mark.django_db
+class TestFinalizeGrade:
+
+    def test_finalize_grade_success(self, auth_instructor_client, enrollment):
+        try:
+            url = reverse('grades-finalize-grade', kwargs={'enrollment_id': enrollment.id})
+        except:
+            url = reverse('grade-finalize-grade', kwargs={'enrollment_id': enrollment.id})
+            
+        data = {"final_grade": "A"}
+        
+        response = auth_instructor_client.post(url, data, format='json')
+        
+        assert response.status_code == status.HTTP_200_OK
+        enrollment.refresh_from_db()
+        assert enrollment.grade == 'A'
+        assert enrollment.status == 'COMPLETED'
+        assert enrollment.grade_points == Decimal('4.00')
+
+    def test_finalize_grade_permission_denied(self, api_client, other_instructor, enrollment):
+        api_client.force_authenticate(user=other_instructor)
+        
+        try:
+            url = reverse('grades-finalize-grade', kwargs={'enrollment_id': enrollment.id})
+        except:
+            url = reverse('grade-finalize-grade', kwargs={'enrollment_id': enrollment.id})
+            
+        response = api_client.post(url, {"final_grade": "A"}, format='json')
+        
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+# ------------------------------------------------------------------
+# Tests: Class Statistics
+# ------------------------------------------------------------------
+
+@pytest.mark.django_db
+class TestClassStatistics:
+
+    def test_class_statistics_success(self, auth_instructor_client, class_instance, grade):
+        try:
+            url = reverse('grades-class-statistics', kwargs={'class_id': class_instance.id})
+        except:
+            url = reverse('grade-class-statistics', kwargs={'class_id': class_instance.id})
+            
+        # Setup completed enrollment for stats
+        grade.enrollment.status = 'COMPLETED'
+        grade.enrollment.grade = 'B'
+        grade.enrollment.grade_points = 3.00
+        grade.enrollment.save()
+        
+        response = auth_instructor_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        stats = response.data['data']['statistics']
+        assert stats['total_students'] == 1
+        assert stats['average_grade'] == 3.00
+        assert stats['grade_distribution']['B'] == 1

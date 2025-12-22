@@ -80,8 +80,10 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         recipient_id = validated_data.pop('recipient_id')
         recipient = User.objects.get(id=recipient_id)
         
+        if 'sender' not in validated_data:
+            validated_data['sender'] = self.context['request'].user
+        
         message = Message.objects.create(
-            sender=self.context['request'].user,
             recipient=recipient,
             **validated_data
         )

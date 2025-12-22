@@ -100,27 +100,6 @@ class FinalizeGradeSerializer(serializers.Serializer):
     final_grade = serializers.ChoiceField(
         choices=['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F']
     )
-    grade_points = serializers.DecimalField(
-        max_digits=3,
-        decimal_places=2,
-        min_value=0.00,
-        max_value=4.00
-    )
-    
-    def validate(self, attrs):
-        """Validate grade points match grade."""
-        grade_point_map = {
-            'A+': 4.00, 'A': 4.00, 'B+': 3.50, 'B': 3.00,
-            'C+': 2.50, 'C': 2.00, 'D': 1.00, 'F': 0.00
-        }
-        
-        expected_points = grade_point_map[attrs['final_grade']]
-        if abs(float(attrs['grade_points']) - expected_points) > 0.01:
-            raise serializers.ValidationError({
-                'grade_points': f'Grade points for {attrs["final_grade"]} should be {expected_points}'
-            })
-        
-        return attrs
 
 
 class StudentGradesSummarySerializer(serializers.Serializer):
