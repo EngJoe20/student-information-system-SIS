@@ -108,34 +108,71 @@
         function loadExamDetails() {
             ExamAPI.get(examId)
                 .then(function(response) {
-                    if (response.status === 'success') {
-                        const exam = response.data;
-                        renderExamDetails(exam);
-                        
-                        const user = getCurrentUser();
-                        if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
-                            $('#edit-button-container').html(
-                                '<a href="edit.html?id=' + exam.id + '" class="btn btn-primary ms-2">' +
-                                '<i class="bi bi-pencil"></i> Edit</a>'
-                            );
-                        }
+                    let exam = null;
+
+                    // Case 1: StandardResponse
+                    if (response.status === 'success' && response.data) {
+                        exam = response.data;
+                    }
+                    // Case 2: Pure DRF object (YOUR CASE)
+                    else if (response.id) {
+                        exam = response;
+                    }
+
+                    if (!exam || !exam.id) {
+                        showToast('Exam not found', 'error');
+                        setTimeout(() => window.location.href = 'list.html', 2000);
+                        console.error('Unexpected response:', response);
+                        return;
+                    }
+
+                    renderExamDetails(exam);
+
+                    const user = getCurrentUser();
+                    if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                        $('#edit-button-container').html(
+                            '<a href="edit.html?id=' + exam.id + '" class="btn btn-primary ms-2">' +
+                            '<i class="bi bi-pencil"></i> Edit</a>'
+                        );
                     }
                 })
-                .catch(function(error) {
-                    showToast('Failed to load exam details', 'error');
-                    console.error(error);
+                .catch(function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Failed to load exam details';
+                    showToast(errorMsg, 'error');
+                    $('#loading-container').html(
+                        '<div class="alert alert-danger">' + errorMsg + '</div>'
+                    );
+
+                    if (xhr.status === 404) {
+                        setTimeout(() => window.location.href = 'list.html', 2000);
+                    }
+
+                    console.error('ExamAPI.get error:', xhr);
                 });
         }
+
         
         function renderExamDetails(exam) {
-            $('#exam-title').text(exam.class_code + ' - ' + exam.exam_type);
-            $('#class-code').text(exam.class_code);
-            $('#course-name').text(exam.course_name);
-            $('#exam-type').text(exam.exam_type);
-            $('#exam-date').text(formatDateTime(exam.exam_date));
-            $('#duration').text(exam.duration_minutes + ' minutes');
-            $('#total-marks').text(exam.total_marks);
-            $('#room').text(exam.room ? (exam.room.building + ' - ' + exam.room.room_number) : 'TBA');
+            $('#exam-title').text((exam.class_code || 'Exam') + ' - ' + (exam.exam_type || ''));
+            $('#class-code').text(exam.class_code || 'N/A');
+            $('#course-name').text(exam.course_name || 'N/A');
+            $('#exam-type').text(exam.exam_type || 'N/A');
+            $('#exam-date').text(exam.exam_date ? formatDateTime(exam.exam_date) : 'N/A');
+            $('#duration').text(exam.duration_minutes ? (exam.duration_minutes + ' minutes') : 'N/A');
+            $('#total-marks').text(exam.total_marks || '0');
+            
+            // Handle room - check room_info first (full object), then room (could be ID or object)
+            let roomText = 'TBA';
+            if (exam.room_info) {
+                roomText = exam.room_info.building + ' - ' + exam.room_info.room_number;
+            } else if (exam.room) {
+                if (typeof exam.room === 'object' && exam.room.building) {
+                    roomText = exam.room.building + ' - ' + exam.room.room_number;
+                } else {
+                    roomText = 'Room ID: ' + exam.room;
+                }
+            }
+            $('#room').text(roomText);
             $('#instructions').text(exam.instructions || 'No instructions provided');
             
             $('#loading-container').hide();

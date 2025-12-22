@@ -103,27 +103,45 @@
             loadRoomDetails();
         });
         
+        function unwrapResponse(res) {
+            // If response has status & data
+            if (res?.status === 'success' && res.data) return res.data;
+            // If it's already a room object
+            if (res?.id) return res;
+            return null;
+        }
+
         function loadRoomDetails() {
             RoomAPI.get(roomId)
                 .then(function(response) {
-                    if (response.status === 'success') {
-                        const room = response.data;
-                        renderRoomDetails(room);
-                        
-                        const user = getCurrentUser();
-                        if (hasPermission(user.role, CONFIG.ROLES.ADMIN)) {
-                            $('#edit-button-container').html(
-                                '<a href="edit.html?id=' + room.id + '" class="btn btn-primary ms-2">' +
-                                '<i class="bi bi-pencil"></i> Edit</a>'
-                            );
-                        }
+                    const room = unwrapResponse(response);
+                    if (!room?.id) {
+                        showToast('Room not found', 'error');
+                        setTimeout(() => window.location.href = 'list.html', 2000);
+                        return;
+                    }
+
+                    renderRoomDetails(room);
+
+                    const user = getCurrentUser();
+                    if (hasPermission(user.role, CONFIG.ROLES.ADMIN)) {
+                        $('#edit-button-container').html(
+                            '<a href="edit.html?id=' + room.id + '" class="btn btn-primary ms-2">' +
+                            '<i class="bi bi-pencil"></i> Edit</a>'
+                        );
                     }
                 })
-                .catch(function(error) {
-                    showToast('Failed to load room details', 'error');
-                    console.error(error);
+                .catch(function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Failed to load room details';
+                    showToast(errorMsg, 'error');
+                    $('#loading-container').html('<div class="alert alert-danger">' + errorMsg + '</div>');
+                    if (xhr.status === 404) {
+                        setTimeout(() => window.location.href = 'list.html', 2000);
+                    }
+                    console.error('RoomAPI.get error:', xhr);
                 });
         }
+
         
         function renderRoomDetails(room) {
             $('#room-name').text(room.building + ' - ' + room.room_number);

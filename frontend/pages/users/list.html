@@ -135,17 +135,45 @@
             showLoading('#users-table-container');
             
             UserAPI.list(params)
-                .then(function(response) {
-                    if (response.status === 'success') {
-                        renderUsersTable(response.data);
-                        renderPagination(response.data);
-                    }
-                })
-                .catch(function(error) {
+            .then(function(response) {
+                let data = null;
+
+                // Case 1: StandardResponse wrapper
+                if (response.status === 'success' && response.data) {
+                    data = response.data;
+                }
+                // Case 2: Pure DRF paginated response (YOUR CASE)
+                else if (response.results && typeof response.count === 'number') {
+                    data = response;
+                }
+                // Case 3: Plain array
+                else if (Array.isArray(response)) {
+                    data = {
+                        results: response,
+                        count: response.length,
+                        next: null,
+                        previous: null
+                    };
+                }
+
+                if (!data) {
                     $('#users-table-container').html(
-                        '<div class="alert alert-danger">Failed to load users. Please try again.</div>'
+                        '<div class="alert alert-warning">Unexpected response format</div>'
                     );
-                    console.error(error);
+                    console.error('Unexpected API response:', response);
+                    return;
+                }
+
+                renderUsersTable(data);
+                renderPagination(data);
+            })
+
+                .catch(function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Failed to load users. Please try again.';
+                    $('#users-table-container').html(
+                        '<div class="alert alert-danger">' + errorMsg + '</div>'
+                    );
+                    console.error('UserAPI.list error:', xhr);
                 });
         }
         

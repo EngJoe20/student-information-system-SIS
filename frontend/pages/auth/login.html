@@ -31,25 +31,6 @@
                             <p class="text-muted">Student Information System</p>
                         </div>
                         
-                        <!-- 2FA Form (Hidden by default) -->
-                        <div id="2fa-form" style="display: none;">
-                            <form id="verify-2fa-form">
-                                <div class="mb-3">
-                                    <label for="otp-code" class="form-label">Enter OTP Code</label>
-                                    <input type="text" class="form-control form-control-lg" id="otp-code" 
-                                           placeholder="000000" maxlength="6" required>
-                                    <small class="text-muted">Enter the 6-digit code from your authenticator app</small>
-                                </div>
-                                <input type="hidden" id="temp-token">
-                                <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
-                                    <i class="bi bi-shield-check"></i> Verify
-                                </button>
-                                <button type="button" class="btn btn-link w-100" id="back-to-login">
-                                    <i class="bi bi-arrow-left"></i> Back to Login
-                                </button>
-                            </form>
-                        </div>
-                        
                         <!-- Login Form -->
                         <div id="login-form">
                             <form id="login-form-element">
@@ -86,7 +67,7 @@
                                 </button>
                                 
                                 <div class="text-center">
-                                    <a href="#" id="forgot-password-link" class="text-decoration-none">
+                                    <a href="forgot-password.html" id="forgot-password-link" class="text-decoration-none">
                                         Forgot Password?
                                     </a>
                                 </div>
@@ -128,12 +109,9 @@
             // Check if user is in 2FA flow (has temp token)
             const tempToken = getTempToken();
             if (tempToken) {
-                // Show 2FA form and restore temp token
-                $('#login-form').hide();
-                $('#2fa-form').show();
-                $('#temp-token').val(tempToken);
-                $('#otp-code').focus();
-                showToast('Please complete 2FA verification', 'info');
+                // Redirect to verify-2fa page
+                window.location.href = 'verify-2fa.html?temp_token=' + encodeURIComponent(tempToken);
+                return;
             }
             
             // Toggle password visibility
@@ -169,14 +147,14 @@
                 login(username, password)
                     .then(function(response) {
                         if (response.status === '2fa_required') {
-                            // Show 2FA form
-                            $('#login-form').hide();
-                            $('#2fa-form').show();
+                            // Redirect to verify-2fa page
                             const tempToken = response.temp_token;
-                            $('#temp-token').val(tempToken);
-                            // Temp token is already stored in localStorage by login() function
-                            $('#otp-code').focus();
-                            showToast('Please enter your 2FA code', 'info');
+                            if (tempToken) {
+                                setTempToken(tempToken);
+                                window.location.href = 'verify-2fa.html?temp_token=' + encodeURIComponent(tempToken);
+                            } else {
+                                showToast('2FA required but temp token missing', 'error');
+                            }
                         } else if (response.status === 'success') {
                             // Login successful
                             showToast('Login successful! Redirecting...', 'success');
@@ -197,82 +175,8 @@
                     });
             });
             
-            // 2FA form submission
-            $('#verify-2fa-form').on('submit', function(e) {
-                e.preventDefault();
-                
-                const tempToken = $('#temp-token').val();
-                const otpCode = $('#otp-code').val().trim();
-                
-                if (!otpCode || otpCode.length !== 6) {
-                    showToast('Please enter a valid 6-digit OTP code', 'error');
-                    return;
-                }
-                
-                const verifyBtn = $(this).find('button[type="submit"]');
-                verifyBtn.prop('disabled', true);
-                verifyBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
-                
-                verify2FA(tempToken, otpCode)
-                    .then(function(response) {
-                        if (response.status === 'success') {
-                            showToast('2FA verified! Redirecting...', 'success');
-                            setTimeout(function() {
-                                const user = response.data.user;
-                                redirectByRole(user.role);
-                            }, 1000);
-                        }
-                    })
-                    .catch(function(error) {
-                        // Show specific error message
-                        const errorMsg = error.message || 'Invalid OTP code. Please try again.';
-                        showToast(errorMsg, 'error');
-                        
-                        // If token expired, clear form and show login
-                        if (errorMsg.includes('expired') || errorMsg.includes('login again')) {
-                            localStorage.removeItem(CONFIG.TEMP_TOKEN_KEY);
-                            $('#2fa-form').hide();
-                            $('#login-form').show();
-                            $('#otp-code').val('');
-                            $('#temp-token').val('');
-                            $('#username').focus();
-                        } else {
-                            $('#otp-code').val('').focus();
-                        }
-                    })
-                    .finally(function() {
-                        verifyBtn.prop('disabled', false);
-                        verifyBtn.html('<i class="bi bi-shield-check"></i> Verify');
-                    });
-            });
-            
-            // Back to login button
-            $('#back-to-login').on('click', function() {
-                // Clear temp token when going back
-                localStorage.removeItem(CONFIG.TEMP_TOKEN_KEY);
-                $('#2fa-form').hide();
-                $('#login-form').show();
-                $('#otp-code').val('');
-                $('#temp-token').val('');
-                $('#username').focus();
-            });
-            
-            // Forgot password link
-            $('#forgot-password-link').on('click', function(e) {
-                e.preventDefault();
-                const email = prompt('Enter your email address:');
-                if (email && isValidEmail(email)) {
-                    requestPasswordReset(email)
-                        .then(function() {
-                            showToast('Password reset instructions sent to your email', 'success');
-                        })
-                        .catch(function(error) {
-                            showToast('Failed to send reset email. Please try again.', 'error');
-                        });
-                } else if (email) {
-                    showToast('Please enter a valid email address', 'error');
-                }
-            });
+            // Forgot password link - now redirects to forgot-password.html
+            // No need for click handler as it's a regular link
         });
     </script>
 </body>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Transcript - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Student Transcript</h1>
+                <div>
+                    <button class="btn btn-primary" id="download-pdf-btn">
+                        <i class="bi bi-download"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div id="loading-container" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <div id="transcript-content" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h3 id="student-name"></h3>
+                                <p><strong>Student ID:</strong> <span id="student-id"></span></p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <h4>GPA: <span id="gpa" class="text-primary"></span></h4>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h5 class="mb-3">Completed Courses</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Credits</th>
+                                        <th>Grade</th>
+                                        <th>Grade Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="courses-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let studentId = null;
+        
+        $(document).ready(function() {
+            if (!requireAuth()) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            studentId = urlParams.get('student_id');
+            
+            // If no student_id, get current user's student ID
+            if (!studentId) {
+                const user = getCurrentUser();
+                if (user.role === CONFIG.ROLES.STUDENT) {
+                    // Get student profile
+                    StudentAPI.list({ search: user.username })
+                        .then(function(response) {
+                            if (response.status === 'success' && response.data.results && response.data.results.length > 0) {
+                                studentId = response.data.results[0].id;
+                                loadTranscript();
+                            } else {
+                                showToast('Student profile not found', 'error');
+                            }
+                        });
+                } else {
+                    showToast('Student ID is required', 'error');
+                    setTimeout(() => window.location.href = '../students/list.html', 2000);
+                }
+            } else {
+                loadTranscript();
+            }
+            
+            $('#download-pdf-btn').on('click', function() {
+                downloadTranscriptPDF();
+            });
+        });
+        
+        function loadTranscript() {
+            if (!studentId) return;
+            
+            ReportAPI.getTranscript(studentId, 'json')
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderTranscript(response.data);
+                    }
+                })
+                .catch(function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Failed to load transcript';
+                    showToast(errorMsg, 'error');
+                    console.error(xhr);
+                });
+        }
+        
+        function renderTranscript(data) {
+            $('#student-id').text(data.student);
+            $('#gpa').text(data.gpa || '0.00');
+            
+            // Get student name from student ID if available
+            if (studentId) {
+                StudentAPI.get(studentId)
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            $('#student-name').text(response.data.full_name);
+                        }
+                    })
+                    .catch(function() {
+                        $('#student-name').text('Student');
+                    });
+            }
+            
+            const tbody = $('#courses-table-body');
+            tbody.empty();
+            
+            if (data.courses && data.courses.length > 0) {
+                data.courses.forEach(function(course) {
+                    const row = '<tr>' +
+                        '<td>' + escapeHtml(course.course) + '</td>' +
+                        '<td>' + course.credits + '</td>' +
+                        '<td>' + escapeHtml(course.grade || 'N/A') + '</td>' +
+                        '<td>' + (course.grade_point || '0.00') + '</td>' +
+                        '</tr>';
+                    tbody.append(row);
+                });
+            } else {
+                tbody.append('<tr><td colspan="4" class="text-center text-muted">No completed courses</td></tr>');
+            }
+            
+            $('#loading-container').hide();
+            $('#transcript-content').show();
+        }
+        
+        function downloadTranscriptPDF() {
+            if (!studentId) {
+                showToast('Student ID is required', 'error');
+                return;
+            }
+            
+            const url = CONFIG.API_BASE_URL + '/reports/transcript/' + studentId + '/?format=pdf';
+            const token = getAccessToken();
+            
+            // Create a temporary link to download the PDF
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'transcript_' + studentId + '.pdf');
+            
+            // Add authorization header via fetch
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Failed to download transcript');
+            })
+            .then(function(blob) {
+                const url = window.URL.createObjectURL(blob);
+                link.href = url;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                showToast('Transcript downloaded successfully', 'success');
+            })
+            .catch(function(error) {
+                showToast('Failed to download transcript', 'error');
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>
+

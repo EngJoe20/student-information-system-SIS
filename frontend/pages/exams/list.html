@@ -164,13 +164,14 @@
             html += '</tr></thead><tbody>';
             
             data.results.forEach(function(exam) {
+                console.log(exam);
                 html += '<tr>';
                 html += '<td>' + escapeHtml(exam.class_code) + '</td>';
                 html += '<td>' + escapeHtml(exam.course_name) + '</td>';
                 html += '<td>' + escapeHtml(exam.exam_type) + '</td>';
                 html += '<td>' + formatDateTime(exam.exam_date) + '</td>';
                 html += '<td>' + exam.duration_minutes + ' min</td>';
-                html += '<td>' + (exam.room ? escapeHtml(exam.room.building + ' - ' + exam.room.room_number) : 'TBA') + '</td>';
+                html += '<td>' + (exam.room_info ? escapeHtml(exam.room_info.building + ' - ' + exam.room_info.room_number) : 'TBA') + '</td>';
                 html += '<td>' + exam.total_marks + '</td>';
                 html += '<td>';
                 html += '<a href="view.html?id=' + exam.id + '" class="btn btn-sm btn-outline-primary" title="View">';

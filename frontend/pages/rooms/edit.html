@@ -173,12 +173,14 @@
                 });
                 
                 const formData = {
+                    room_number: $('#room_number').val().trim(),  // ✅ include this
                     building: $('#building').val().trim(),
                     capacity: parseInt($('#capacity').val()),
                     room_type: $('#room_type').val(),
                     equipment: equipment,
                     is_available: $('#is_available').val() === 'true'
                 };
+
                 
                 const submitBtn = $('#submit-btn');
                 submitBtn.prop('disabled', true);
@@ -216,36 +218,54 @@
             });
         });
         
+        function unwrapResponse(res) {
+            if (res?.status === 'success' && res.data) return res.data;
+            if (res?.id) return res;
+            if (Array.isArray(res)) return { results: res };
+            return null;
+        }
+
+
+        
         function loadRoomData() {
             RoomAPI.get(roomId)
-                .then(function(response) {
-                    if (response.status === 'success') {
-                        const room = response.data;
-                        $('#room_number').val(room.room_number);
-                        $('#building').val(room.building);
-                        $('#capacity').val(room.capacity);
-                        $('#room_type').val(room.room_type);
-                        $('#is_available').val(room.is_available ? 'true' : 'false');
-                        
-                        // Equipment
-                        if (room.equipment && room.equipment.length > 0) {
-                            room.equipment.forEach(function(item) {
-                                const html = '<div class="input-group mb-2">' +
-                                    '<input type="text" class="form-control equipment-item" value="' + escapeHtml(item) + '">' +
-                                    '<button type="button" class="btn btn-outline-danger remove-equipment"><i class="bi bi-x"></i></button>' +
-                                    '</div>';
-                                $('#equipment-container').append(html);
-                            });
-                        }
-                        
-                        $('#loading-container').hide();
-                        $('#edit-form-container').show();
+                .then(function(res) {
+                    const room = unwrapResponse(res); // <-- unwrap here
+                    if (!room || !room.id) {
+                        showToast('Room not found', 'error');
+                        setTimeout(() => window.location.href = 'list.html', 2000);
+                        return;
                     }
+
+                    $('#room_number').val(room.room_number || '');
+                    $('#building').val(room.building || '');
+                    $('#capacity').val(room.capacity || '');
+                    $('#room_type').val(room.room_type || '');
+                    $('#is_available').val(room.is_available ? 'true' : 'false');
+
+                    if (room.equipment && Array.isArray(room.equipment)) {
+                        room.equipment.forEach(function(item) {
+                            const html = '<div class="input-group mb-2">' +
+                                '<input type="text" class="form-control equipment-item" value="' + escapeHtml(item) + '">' +
+                                '<button type="button" class="btn btn-outline-danger remove-equipment"><i class="bi bi-x"></i></button>' +
+                                '</div>';
+                            $('#equipment-container').append(html);
+                        });
+                    }
+
+                    $('#loading-container').hide();
+                    $('#edit-form-container').show();
                 })
-                .catch(function(error) {
-                    showToast('Failed to load room data', 'error');
-                    console.error(error);
+                .catch(function(xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Failed to load room data';
+                    showToast(errorMsg, 'error');
+                    $('#loading-container').html('<div class="alert alert-danger">' + errorMsg + '</div>');
+                    if (xhr.status === 404) {
+                        setTimeout(() => window.location.href = 'list.html', 2000);
+                    }
+                    console.error('RoomAPI.get error:', xhr);
                 });
+
         }
     </script>
 </body>

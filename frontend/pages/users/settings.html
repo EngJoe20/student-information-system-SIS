@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Settings - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Security Settings</h1>
+                <a href="profile.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Profile
+                </a>
+            </div>
+            
+            <div id="loading-container" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <div id="settings-content" style="display: none;">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- 2FA Section -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="mb-3">Two-Factor Authentication (2FA)</h4>
+                                <div id="2fa-status-section">
+                                    <p id="2fa-status-text"></p>
+                                    <div id="2fa-controls">
+                                        <button class="btn btn-primary" id="enable-2fa-btn" style="display: none;">
+                                            <i class="bi bi-shield-check"></i> Enable 2FA
+                                        </button>
+                                        <button class="btn btn-danger" id="disable-2fa-btn" style="display: none;">
+                                            <i class="bi bi-shield-x"></i> Disable 2FA
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 2FA Setup Modal (Hidden by default) -->
+                                <div id="2fa-setup-section" style="display: none;">
+                                    <hr>
+                                    <h5 class="mb-3">Setup 2FA</h5>
+                                    <p class="text-muted">Scan the QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
+                                    
+                                    <div class="text-center mb-3">
+                                        <img id="qr-code-image" src="" alt="QR Code" class="img-fluid" style="max-width: 300px;">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Or enter this secret manually:</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="otp-secret-display" readonly>
+                                            <button class="btn btn-outline-secondary" type="button" id="copy-secret-btn">
+                                                <i class="bi bi-clipboard"></i> Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="verify-otp-code" class="form-label">Enter 6-digit code from your authenticator app:</label>
+                                        <input type="text" class="form-control" id="verify-otp-code" maxlength="6" placeholder="000000">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-success" id="verify-2fa-btn">
+                                            <i class="bi bi-check-circle"></i> Verify & Enable
+                                        </button>
+                                        <button class="btn btn-secondary" id="cancel-2fa-setup-btn">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let currentOtpSecret = null;
+        
+        $(document).ready(function() {
+            if (!requireAuth()) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            load2FAStatus();
+            
+            // Enable 2FA
+            $('#enable-2fa-btn').on('click', function() {
+                enable2FA();
+            });
+            
+            // Disable 2FA
+            $('#disable-2fa-btn').on('click', function() {
+                if (confirm('Are you sure you want to disable 2FA? This will make your account less secure.')) {
+                    disable2FA();
+                }
+            });
+            
+            // Verify 2FA setup
+            $('#verify-2fa-btn').on('click', function() {
+                verify2FASetup();
+            });
+            
+            // Cancel 2FA setup
+            $('#cancel-2fa-setup-btn').on('click', function() {
+                cancel2FASetup();
+            });
+            
+            // Copy secret
+            $('#copy-secret-btn').on('click', function() {
+                const secret = $('#otp-secret-display').val();
+                navigator.clipboard.writeText(secret).then(function() {
+                    showToast('Secret copied to clipboard', 'success');
+                });
+            });
+        });
+        
+        function load2FAStatus() {
+            UserAPI.getCurrent()
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const user = response.data;
+                        render2FAStatus(user.is_2fa_enabled);
+                        $('#loading-container').hide();
+                        $('#settings-content').show();
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to load settings', 'error');
+                    console.error(error);
+                });
+        }
+        
+        function render2FAStatus(isEnabled) {
+            if (isEnabled) {
+                $('#2fa-status-text').html('<span class="badge bg-success">2FA is Enabled</span>');
+                $('#enable-2fa-btn').hide();
+                $('#disable-2fa-btn').show();
+            } else {
+                $('#2fa-status-text').html('<span class="badge bg-secondary">2FA is Disabled</span>');
+                $('#enable-2fa-btn').show();
+                $('#disable-2fa-btn').hide();
+            }
+            $('#2fa-setup-section').hide();
+        }
+        
+        function enable2FA() {
+            $('#enable-2fa-btn').prop('disabled', true);
+            $('#enable-2fa-btn').html('<span class="spinner-border spinner-border-sm me-2"></span>Generating...');
+            
+            UserAPI.enable2FA()
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const data = response.data;
+                        currentOtpSecret = data.otp_secret;
+                        
+                        // Display QR code
+                        $('#qr-code-image').attr('src', 'data:image/png;base64,' + data.qr_code);
+                        $('#otp-secret-display').val(data.otp_secret);
+                        
+                        // Show setup section
+                        $('#2fa-setup-section').show();
+                        $('#verify-otp-code').focus();
+                    }
+                })
+                .catch(function(xhr) {
+                    const response = xhr.responseJSON;
+                    if (response && response.code === '2FA_ALREADY_ENABLED') {
+                        showToast('2FA is already enabled', 'info');
+                        load2FAStatus();
+                    } else {
+                        showToast('Failed to enable 2FA. Please try again.', 'error');
+                    }
+                })
+                .finally(function() {
+                    $('#enable-2fa-btn').prop('disabled', false);
+                    $('#enable-2fa-btn').html('<i class="bi bi-shield-check"></i> Enable 2FA');
+                });
+        }
+        
+        function verify2FASetup() {
+            const otpCode = $('#verify-otp-code').val().trim();
+            
+            if (!otpCode || otpCode.length !== 6) {
+                $('#verify-otp-code').addClass('is-invalid');
+                $('#verify-otp-code').siblings('.invalid-feedback').text('Please enter a valid 6-digit code');
+                return;
+            }
+            
+            if (!currentOtpSecret) {
+                showToast('2FA setup session expired. Please try again.', 'error');
+                cancel2FASetup();
+                return;
+            }
+            
+            $('#verify-2fa-btn').prop('disabled', true);
+            $('#verify-2fa-btn').html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
+            
+            UserAPI.verify2FASetup(currentOtpSecret, otpCode)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        showToast('2FA enabled successfully!', 'success');
+                        // Update user data in localStorage
+                        const user = getCurrentUser();
+                        if (user) {
+                            user.is_2fa_enabled = true;
+                            localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(user));
+                        }
+                        cancel2FASetup();
+                        load2FAStatus();
+                    }
+                })
+                .catch(function(xhr) {
+                    const response = xhr.responseJSON;
+                    if (response && response.message) {
+                        showToast(response.message, 'error');
+                    } else {
+                        showToast('Invalid OTP code. Please try again.', 'error');
+                    }
+                    $('#verify-otp-code').val('').focus();
+                })
+                .finally(function() {
+                    $('#verify-2fa-btn').prop('disabled', false);
+                    $('#verify-2fa-btn').html('<i class="bi bi-check-circle"></i> Verify & Enable');
+                });
+        }
+        
+        function disable2FA() {
+            $('#disable-2fa-btn').prop('disabled', true);
+            $('#disable-2fa-btn').html('<span class="spinner-border spinner-border-sm me-2"></span>Disabling...');
+            
+            UserAPI.disable2FA()
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        showToast('2FA disabled successfully', 'success');
+                        // Update user data in localStorage
+                        const user = getCurrentUser();
+                        if (user) {
+                            user.is_2fa_enabled = false;
+                            localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(user));
+                        }
+                        load2FAStatus();
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to disable 2FA. Please try again.', 'error');
+                })
+                .finally(function() {
+                    $('#disable-2fa-btn').prop('disabled', false);
+                    $('#disable-2fa-btn').html('<i class="bi bi-shield-x"></i> Disable 2FA');
+                });
+        }
+        
+        function cancel2FASetup() {
+            $('#2fa-setup-section').hide();
+            $('#verify-otp-code').val('');
+            $('#verify-otp-code').removeClass('is-invalid');
+            currentOtpSecret = null;
+        }
+    </script>
+</body>
+</html>
+

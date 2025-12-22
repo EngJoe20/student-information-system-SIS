@@ -46,7 +46,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <form id="edit-student-form">
+                                <form id="edit-student-form" novalidate>
                                     <!-- Personal Information -->
                                     <h5 class="mb-3">Personal Information</h5>
                                     <div class="row mb-3">
@@ -199,114 +199,111 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Toast Container -->
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
-    
+
     <!-- Scripts -->
     <script src="../../assets/js/config.js"></script>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/auth.js"></script>
     <script src="../../assets/js/api.js"></script>
     <script>
+        // Add PATCH method to StudentAPI
+        if (!StudentAPI.patch) {
+            StudentAPI.patch = (id, data) => apiRequest(`/students/${id}/`, 'PATCH', data);
+        }
+
         let studentId = null;
-        
+
         $(document).ready(function() {
-            // Check authentication and role
-            if (!requireRole([CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
-                return;
-            }
-            
-            // Load navbar and sidebar
+            if (!requireRole([CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) return;
+
             $('#navbar-container').load('../../components/navbar.html');
             $('#sidebar-container').load('../../components/sidebar.html');
-            
-            // Get student ID from URL
+
             const urlParams = new URLSearchParams(window.location.search);
             studentId = urlParams.get('id');
-            
+
             if (!studentId) {
                 showToast('Student ID is required', 'error');
                 setTimeout(() => window.location.href = 'list.html', 2000);
                 return;
             }
-            
-            // Load student data
+
             loadStudentData();
-            
-            // Form submission
+
             $('#edit-student-form').on('submit', function(e) {
                 e.preventDefault();
-                
-                // Validate form
                 if (!this.checkValidity()) {
                     e.stopPropagation();
                     $(this).addClass('was-validated');
                     return;
                 }
-                
-                // Collect form data
-                const formData = {
-                    address: $('#address').val().trim() || null,
-                    city: $('#city').val().trim() || null,
-                    state: $('#state').val().trim() || null,
-                    postal_code: $('#postal_code').val().trim() || null,
-                    country: $('#country').val().trim() || null,
-                    emergency_contact_name: $('#emergency_contact_name').val().trim() || null,
-                    emergency_contact_phone: $('#emergency_contact_phone').val().trim() || null,
-                    phone_number: $('#phone_number').val().trim() || null,
-                    academic_status: $('#academic_status').val(),
-                    enrollment_date: $('#enrollment_date').val(),
-                    graduation_date: $('#graduation_date').val() || null,
-                    date_of_birth: $('#date_of_birth').val(),
-                    gender: $('#gender').val()
-                };
-                
-                // Disable submit button
-                const submitBtn = $('#submit-btn');
-                submitBtn.prop('disabled', true);
-                submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
-                
-                // Update student
-                StudentAPI.update(studentId, formData)
-                    .then(function(response) {
-                        if (response.status === 'success') {
-                            showToast('Student updated successfully!', 'success');
-                            setTimeout(function() {
-                                window.location.href = 'view.html?id=' + studentId;
-                            }, 1500);
-                        }
-                    })
-                    .catch(function(xhr) {
-                        // Handle validation errors
-                        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            for (const field in errors) {
-                                const fieldId = field.replace(/\./g, '_');
-                                const input = $('#' + fieldId);
-                                if (input.length) {
-                                    input.addClass('is-invalid');
-                                    input.siblings('.invalid-feedback').text(errors[field][0]);
-                                }
-                            }
-                            showToast('Please fix the validation errors', 'error');
-                        } else {
-                            showToast('Failed to update student. Please try again.', 'error');
-                        }
-                    })
-                    .finally(function() {
-                        submitBtn.prop('disabled', false);
-                        submitBtn.html('<i class="bi bi-check-circle"></i> Update Student');
-                    });
-            });
         });
-        
+
+const formData = {
+        student_id: $('#student_id').val().trim(),
+        first_name: $('#first_name').val().trim(),
+        last_name: $('#last_name').val().trim(),
+        email: $('#email').val().trim(),
+        address: $('#address').val().trim() || null,
+        city: $('#city').val().trim() || null,
+        state: $('#state').val().trim() || null,
+        postal_code: $('#postal_code').val().trim() || null,
+        country: $('#country').val().trim() || null,
+        emergency_contact_name: $('#emergency_contact_name').val().trim() || null,
+        emergency_contact_phone: $('#emergency_contact_phone').val().trim() || null,
+        phone_number: $('#phone_number').val().trim() || null,
+        academic_status: $('#academic_status').val(),
+        enrollment_date: $('#enrollment_date').val(),
+        graduation_date: $('#graduation_date').val() || null,
+        date_of_birth: $('#date_of_birth').val(),
+        gender: $('#gender').val()
+    };
+
+    const submitBtn = $('#submit-btn');
+    submitBtn.prop('disabled', true);
+    submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+
+    StudentAPI.patch(studentId, formData)
+        .then(function(response) {
+            if (response.status === 'success') {
+                showToast('Student updated successfully!', 'success');
+                setTimeout(() => window.location.href = 'view.html?id=' + studentId, 1500);
+            }
+        })
+        .catch(function(xhr) {
+            console.error("Error details:", xhr); // Log full error for debugging
+            if (xhr.status === 400 && xhr.responseJSON?.errors) {
+                const errors = xhr.responseJSON.errors;
+                for (const field in errors) {
+                    // Handle nested errors (e.g., user.first_name -> user_first_name)
+                    const fieldId = field.replace(/\./g, '_'); 
+                    const input = $('#' + fieldId);
+                    if (input.length) {
+                        input.addClass('is-invalid');
+                        input.siblings('.invalid-feedback').text(errors[field][0]);
+                    }
+                }
+                showToast('Please fix the validation errors', 'error');
+            } else {
+                showToast('Failed to update student. Server returned: ' + xhr.status, 'error');
+            }
+        })
+        // 2. THE JAVASCRIPT FIX
+        // Replaced .finally() with .always() because jQuery promises use .always()
+        .always(function() { 
+            submitBtn.prop('disabled', false);
+            submitBtn.html('<i class="bi bi-check-circle"></i> Update Student');
+        });
+});
+
         function loadStudentData() {
             StudentAPI.get(studentId)
                 .then(function(response) {
                     if (response.status === 'success') {
-                        const student = response.data;
-                        populateForm(student);
+                        populateForm(response.data);
                         $('#loading-container').hide();
                         $('#edit-form-container').show();
                     }
@@ -316,7 +313,7 @@
                     console.error(error);
                 });
         }
-        
+
         function populateForm(student) {
             $('#student_id').val(student.student_id);
             $('#first_name').val(student.user?.first_name || '');
@@ -339,4 +336,3 @@
     </script>
 </body>
 </html>
-

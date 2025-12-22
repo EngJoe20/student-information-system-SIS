@@ -78,6 +78,7 @@ const StudentAPI = {
     get: (id) => apiRequest(`/students/${id}/`),
     create: (data) => apiRequest('/students/', 'POST', data),
     update: (id, data) => apiRequest(`/students/${id}/`, 'PUT', data),
+    patch: (id, data) => apiRequest(`/students/${id}/`, 'PATCH', data), // <-- added patch
     delete: (id) => apiRequest(`/students/${id}/`, 'DELETE'),
     getEnrollments: (id, params = {}) => {
         const queryString = new URLSearchParams(params).toString();
@@ -93,6 +94,7 @@ const StudentAPI = {
     },
     getTranscript: (id) => apiRequest(`/students/${id}/transcript/`)
 };
+
 
 // ==================== ENROLLMENT API ====================
 
@@ -264,4 +266,6 @@ const DashboardAPI = {
     getStudent: () => apiRequest('/dashboard/student/'),
     getInstructor: () => apiRequest('/dashboard/instructor/')
 };
+
+
 
