@@ -13,6 +13,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from accounts.models import User
+from accounts.permissions import IsAdmin, IsStudent, IsInstructor
 from accounts.permissions import IsAdmin
 from students.models import Student, Enrollment
 from courses.models import Course, Class
