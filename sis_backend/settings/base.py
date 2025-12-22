@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'grades.apps.GradesConfig',
     'notifications.apps.NotificationsConfig',
     'core.apps.CoreConfig',
+    'dashboard.apps.DashboardConfig'
 ]
 
 MIDDLEWARE = [
@@ -117,7 +118,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
+# Directory for report files
+REPORTS_DIR = MEDIA_ROOT / 'reports'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/v1/', include('attendance.urls')),
     path('api/v1/', include('grades.urls')),
     path('api/v1/', include('notifications.urls')),
+    path('api/v1/', include('dashboard.urls')),
     
     # API Documentation
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
