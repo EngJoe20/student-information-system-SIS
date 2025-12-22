@@ -66,11 +66,13 @@ class NotificationViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            response_data = {
+            return Response(
+                StandardResponse.success(data={
                 'unread_count': unread_count,
                 'results': serializer.data
-            }
-            return self.get_paginated_response(response_data)
+            }),
+                status=status.HTTP_200_OK
+            )
         
         serializer = self.get_serializer(queryset, many=True)
         return Response(
@@ -190,12 +192,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            response_data = {
-                'unread_count': unread_count,
-                'results': serializer.data
-            }
-            return self.get_paginated_response(response_data)
-        
+            return Response(
+                StandardResponse.success(data={
+                    'unread_count': unread_count,
+                    'results': serializer.data
+                }),
+                status=status.HTTP_200_OK
+            )
         serializer = self.get_serializer(queryset, many=True)
         return Response(
             StandardResponse.success(data={
@@ -214,7 +217,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         """Send new message."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        message = serializer.save()
+        message = serializer.save(sender=request.user)
         
         return Response(
             StandardResponse.success(
@@ -363,16 +366,18 @@ class StudentRequestViewSet(viewsets.ModelViewSet):
         request_body=StudentRequestUpdateSerializer,
         security=bearer_security
     )
-    def update(self, request, pk=None):
+    def update(self, request, pk=None,**kwargs):
         """Update student request status."""
         student_request = self.get_object()
-        serializer = self.get_serializer(student_request, data=request.data)
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(student_request, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         
         # Send notification to student
-        RequestNotificationTrigger.on_request_status_changed(student_request)
-        
+        RequestNotificationTrigger.on_request_status_changed(student_request)    
+            
         return Response(
             StandardResponse.success(
                 message='Request updated successfully',
@@ -554,7 +559,7 @@ class ReportViewSet(viewsets.GenericViewSet):
             )
         
         # Get enrollments
-        enrollments = Enrollment.objects.filter(class_obj=class_obj)
+        enrollments = Enrollment.objects.filter(class_instance=class_obj)
         
         # Calculate statistics
         total_students = enrollments.count()
