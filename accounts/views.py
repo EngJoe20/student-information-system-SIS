@@ -520,9 +520,13 @@ class UserViewSet(viewsets.ModelViewSet):
         )
     @swagger_auto_schema(
         operation_summary="Disable 2FA",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={}
+        ),
         security=bearer_security,
         responses={200: '2FA disabled'}
-    )    
+    )     
     @action(detail=False, methods=['post'], url_path='disable-2fa', permission_classes=[IsAuthenticated])
     def disable_2fa(self, request):
         """Disable 2FA for user."""
