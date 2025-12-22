@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'grades.apps.GradesConfig',
     'notifications.apps.NotificationsConfig',
     'core.apps.CoreConfig',
+    'dashboard.apps.DashboardConfig'
 ]
 
 MIDDLEWARE = [

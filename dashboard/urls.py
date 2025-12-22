@@ -1,14 +1,12 @@
+
 """
-URL configuration for students app.
+URL configuration for dashboard app.
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from students.views import StudentViewSet, EnrollmentViewSet
 from dashboard.views import DashboardViewSet
 
 router = DefaultRouter()
-router.register(r'students', StudentViewSet, basename='students')
-router.register(r'enrollments', EnrollmentViewSet, basename='enrollments')
 router.register(r'dashboard', DashboardViewSet, basename='dashboard')
 
 urlpatterns = [

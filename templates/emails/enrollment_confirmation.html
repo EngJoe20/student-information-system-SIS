@@ -1,4 +1,3 @@
-<!-- templates/emails/grade_notification.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,7 +13,7 @@
             padding: 20px;
         }
         .header {
-            background-color: #4CAF50;
+            background-color: #2196F3;
             color: white;
             padding: 20px;
             text-align: center;
@@ -23,9 +22,9 @@
             padding: 20px;
             background-color: #f9f9f9;
         }
-        .grade-box {
+        .course-box {
             background-color: white;
-            border: 2px solid #4CAF50;
+            border: 2px solid #2196F3;
             padding: 15px;
             margin: 20px 0;
             border-radius: 5px;
@@ -41,19 +40,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>New Grade Posted</h2>
+            <h2>Enrollment Confirmation</h2>
         </div>
         <div class="content">
             <p>Dear {{ student.user.first_name }},</p>
-            <p>A new grade has been posted for your course:</p>
-            <div class="grade-box">
+            <p>You have been successfully enrolled in the following course:</p>
+            <div class="course-box">
                 <h3>{{ course.course_name }}</h3>
-                <p><strong>Assignment:</strong> {{ assignment }}</p>
-                <p><strong>Score:</strong> {{ score }} / {{ total }}</p>
-                <p><strong>Percentage:</strong> {{ percentage|floatformat:1 }}%</p>
+                <p><strong>Course Code:</strong> {{ course.course_code }}</p>
+                <p><strong>Section:</strong> {{ class.section }}</p>
+                <p><strong>Credits:</strong> {{ course.credits }}</p>
+                <p><strong>Instructor:</strong> {{ class.instructor.full_name }}</p>
+                <p><strong>Enrollment Date:</strong> {{ enrollment_date|date:"F d, Y" }}</p>
             </div>
-            <p>You can view your complete grade details by logging into the Student Information System.</p>
-            <p>Best regards,<br>Academic Affairs Office</p>
+            <p>Please check your class schedule for meeting times and location.</p>
+            <p>Best regards,<br>Registrar's Office</p>
         </div>
         <div class="footer">
             <p>This is an automated message. Please do not reply to this email.</p>

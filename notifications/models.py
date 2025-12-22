@@ -1,10 +1,9 @@
 """
-Notification, messaging, and student request models.
+Notification, Message, and StudentRequest models.
 """
 import uuid
 from django.db import models
 from django.conf import settings
-from students.models import Student
 
 
 class Notification(models.Model):
@@ -12,12 +11,12 @@ class Notification(models.Model):
     System notifications for users.
     """
     
-    TYPE_CHOICES = [
-        ('GRADE', 'Grade Posted'),
-        ('ATTENDANCE', 'Attendance Alert'),
-        ('ENROLLMENT', 'Enrollment Update'),
+    NOTIFICATION_TYPE_CHOICES = [
+        ('GRADE', 'Grade'),
+        ('ATTENDANCE', 'Attendance'),
+        ('ENROLLMENT', 'Enrollment'),
         ('ANNOUNCEMENT', 'Announcement'),
-        ('SYSTEM', 'System Notification'),
+        ('SYSTEM', 'System'),
     ]
     
     PRIORITY_CHOICES = [
@@ -32,16 +31,21 @@ class Notification(models.Model):
         on_delete=models.CASCADE,
         related_name='notifications'
     )
-    notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_TYPE_CHOICES,
+        db_index=True
+    )
     title = models.CharField(max_length=200)
     message = models.TextField()
     is_read = models.BooleanField(default=False, db_index=True)
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
-    
-    # Optional reference to related object
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='MEDIUM'
+    )
     related_object_type = models.CharField(max_length=50, blank=True, null=True)
     related_object_id = models.UUIDField(blank=True, null=True)
-    
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     
     class Meta:
@@ -49,11 +53,11 @@ class Notification(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['recipient', 'is_read']),
-            models.Index(fields=['created_at']),
+            models.Index(fields=['recipient', 'created_at']),
         ]
     
     def __str__(self):
-        return f"{self.recipient.username} - {self.title}"
+        return f"{self.notification_type} - {self.title} for {self.recipient.username}"
 
 
 class Message(models.Model):
@@ -78,37 +82,36 @@ class Message(models.Model):
     parent_message = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
-        null=True,
         blank=True,
+        null=True,
         related_name='replies'
     )
-    
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = 'messages'
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['sender', 'created_at']),
             models.Index(fields=['recipient', 'is_read']),
+            models.Index(fields=['sender', 'created_at']),
+            models.Index(fields=['recipient', 'created_at']),
         ]
     
     def __str__(self):
-        return f"{self.sender.username} to {self.recipient.username} - {self.subject}"
+        return f"From {self.sender.username} to {self.recipient.username}: {self.subject}"
 
 
 class StudentRequest(models.Model):
     """
-    Student requests for administrative actions.
+    Student requests for various services.
     """
     
     REQUEST_TYPE_CHOICES = [
-        ('TRANSCRIPT', 'Transcript Request'),
-        ('CERTIFICATE', 'Certificate Request'),
-        ('COURSE_ADD', 'Course Add Request'),
-        ('COURSE_DROP', 'Course Drop Request'),
+        ('TRANSCRIPT', 'Transcript'),
+        ('CERTIFICATE', 'Certificate'),
+        ('COURSE_ADD', 'Course Add'),
+        ('COURSE_DROP', 'Course Drop'),
         ('GRADE_APPEAL', 'Grade Appeal'),
         ('OTHER', 'Other'),
     ]
@@ -122,11 +125,15 @@ class StudentRequest(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(
-        Student,
+        'students.Student',
         on_delete=models.CASCADE,
         related_name='requests'
     )
-    request_type = models.CharField(max_length=20, choices=REQUEST_TYPE_CHOICES)
+    request_type = models.CharField(
+        max_length=20,
+        choices=REQUEST_TYPE_CHOICES,
+        db_index=True
+    )
     subject = models.CharField(max_length=200)
     description = models.TextField()
     status = models.CharField(
@@ -138,14 +145,12 @@ class StudentRequest(models.Model):
     processed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        null=True,
         blank=True,
+        null=True,
         related_name='processed_requests'
     )
     response = models.TextField(blank=True, null=True)
-    
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
@@ -157,4 +162,4 @@ class StudentRequest(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.student.student_id} - {self.get_request_type_display()}"
+        return f"{self.get_request_type_display()} - {self.student.student_id} - {self.status}"

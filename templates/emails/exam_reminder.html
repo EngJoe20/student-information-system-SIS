@@ -1,4 +1,3 @@
-<!-- templates/emails/grade_notification.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,7 +13,7 @@
             padding: 20px;
         }
         .header {
-            background-color: #4CAF50;
+            background-color: #f44336;
             color: white;
             padding: 20px;
             text-align: center;
@@ -23,9 +22,9 @@
             padding: 20px;
             background-color: #f9f9f9;
         }
-        .grade-box {
+        .exam-box {
             background-color: white;
-            border: 2px solid #4CAF50;
+            border: 2px solid #f44336;
             padding: 15px;
             margin: 20px 0;
             border-radius: 5px;
@@ -41,18 +40,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>New Grade Posted</h2>
+            <h2>Exam Reminder</h2>
         </div>
         <div class="content">
             <p>Dear {{ student.user.first_name }},</p>
-            <p>A new grade has been posted for your course:</p>
-            <div class="grade-box">
+            <p>This is a reminder about your upcoming exam:</p>
+            <div class="exam-box">
                 <h3>{{ course.course_name }}</h3>
-                <p><strong>Assignment:</strong> {{ assignment }}</p>
-                <p><strong>Score:</strong> {{ score }} / {{ total }}</p>
-                <p><strong>Percentage:</strong> {{ percentage|floatformat:1 }}%</p>
+                <p><strong>Exam Type:</strong> {{ exam.get_exam_type_display }}</p>
+                <p><strong>Date & Time:</strong> {{ exam_date|date:"F d, Y" }} at {{ exam_date|time:"h:i A" }}</p>
+                <p><strong>Duration:</strong> {{ exam.duration_minutes }} minutes</p>
+                {% if exam.room %}
+                <p><strong>Location:</strong> {{ exam.room.building }} - Room {{ exam.room.room_number }}</p>
+                {% endif %}
             </div>
-            <p>You can view your complete grade details by logging into the Student Information System.</p>
+            <p>Please arrive at least 15 minutes before the exam starts. Good luck!</p>
             <p>Best regards,<br>Academic Affairs Office</p>
         </div>
         <div class="footer">

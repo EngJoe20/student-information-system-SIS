@@ -383,10 +383,11 @@ class UserViewSet(viewsets.ModelViewSet):
         request_body=UserUpdateSerializer,
         security=bearer_security
     )
-    def update(self, request, pk=None):
+    def update(self, request, pk=None, *args, **kwargs):
         """Update user."""
+        partial = kwargs.pop('partial', False) 
         user = self.get_object()
-        serializer = self.get_serializer(user, data=request.data)
+        serializer = self.get_serializer(user, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         
