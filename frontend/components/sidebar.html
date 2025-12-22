@@ -1,0 +1,121 @@
+<!-- Sidebar Component -->
+<aside class="sidebar" id="main-sidebar">
+    <nav class="nav flex-column">
+        <!-- Dashboard Link -->
+        <a class="nav-link" href="#" id="dashboard-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        
+        <!-- Student Links -->
+        <div id="student-links" style="display: none;">
+            <a class="nav-link" href="../students/view.html">
+                <i class="bi bi-person"></i> My Profile
+            </a>
+            <a class="nav-link" href="../enrollments/list.html">
+                <i class="bi bi-book"></i> My Enrollments
+            </a>
+            <a class="nav-link" href="../classes/list.html">
+                <i class="bi bi-calendar3"></i> Available Classes
+            </a>
+            <a class="nav-link" href="../attendance/list.html">
+                <i class="bi bi-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="../grades/list.html">
+                <i class="bi bi-clipboard-data"></i> Grades
+            </a>
+            <a class="nav-link" href="../students/view.html?tab=transcript">
+                <i class="bi bi-file-text"></i> Transcript
+            </a>
+            <a class="nav-link" href="../requests/list.html">
+                <i class="bi bi-inbox"></i> My Requests
+            </a>
+        </div>
+        
+        <!-- Instructor Links -->
+        <div id="instructor-links" style="display: none;">
+            <a class="nav-link" href="../classes/list.html">
+                <i class="bi bi-book"></i> My Classes
+            </a>
+            <a class="nav-link" href="../attendance/list.html">
+                <i class="bi bi-calendar-check"></i> Attendance
+            </a>
+            <a class="nav-link" href="../grades/list.html">
+                <i class="bi bi-clipboard-data"></i> Grades
+            </a>
+            <a class="nav-link" href="../exams/list.html">
+                <i class="bi bi-calendar-event"></i> Exams
+            </a>
+        </div>
+        
+        <!-- Admin/Registrar Links -->
+        <div id="admin-links" style="display: none;">
+            <a class="nav-link" href="../students/list.html">
+                <i class="bi bi-people"></i> Students
+            </a>
+            <a class="nav-link" href="../courses/list.html">
+                <i class="bi bi-book"></i> Courses
+            </a>
+            <a class="nav-link" href="../classes/list.html">
+                <i class="bi bi-calendar3"></i> Classes
+            </a>
+            <a class="nav-link" href="../enrollments/list.html">
+                <i class="bi bi-person-plus"></i> Enrollments
+            </a>
+            <a class="nav-link" href="../rooms/list.html">
+                <i class="bi bi-building"></i> Rooms
+            </a>
+            <a class="nav-link" href="../exams/list.html">
+                <i class="bi bi-calendar-event"></i> Exams
+            </a>
+            <a class="nav-link" href="../users/list.html">
+                <i class="bi bi-person-gear"></i> Users
+            </a>
+            <a class="nav-link" href="../requests/list.html">
+                <i class="bi bi-inbox"></i> Student Requests
+            </a>
+        </div>
+        
+        <!-- Common Links -->
+        <hr>
+        <a class="nav-link" href="../notifications/list.html">
+            <i class="bi bi-bell"></i> Notifications
+        </a>
+        <a class="nav-link" href="../messages/inbox.html">
+            <i class="bi bi-envelope"></i> Messages
+        </a>
+    </nav>
+</aside>
+
+<script>
+// Sidebar initialization script
+$(document).ready(function() {
+    const user = getCurrentUser();
+    if (!user) return;
+    
+    // Show/hide links based on role
+    const role = user.role;
+    if (role === CONFIG.ROLES.STUDENT) {
+        $('#student-links').show();
+        $('#dashboard-link').attr('href', '../dashboard/student.html');
+    } else if (role === CONFIG.ROLES.INSTRUCTOR) {
+        $('#instructor-links').show();
+        $('#dashboard-link').attr('href', '../dashboard/instructor.html');
+    } else if (role === CONFIG.ROLES.ADMIN || role === CONFIG.ROLES.REGISTRAR) {
+        $('#admin-links').show();
+        if (role === CONFIG.ROLES.ADMIN) {
+            $('#dashboard-link').attr('href', '../dashboard/admin.html');
+        } else {
+            $('#dashboard-link').attr('href', '../dashboard/registrar.html');
+        }
+    }
+    
+    // Highlight active link
+    const currentPath = window.location.pathname;
+    $('#main-sidebar .nav-link').each(function() {
+        if ($(this).attr('href') && currentPath.includes($(this).attr('href'))) {
+            $(this).addClass('active');
+        }
+    });
+});
+</script>
+

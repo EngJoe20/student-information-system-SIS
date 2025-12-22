@@ -1,0 +1,100 @@
+<!-- Navbar Component -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container-fluid">
+        <button class="btn btn-link d-lg-none" id="sidebar-toggle" type="button">
+            <i class="bi bi-list"></i>
+        </button>
+        
+        <a class="navbar-brand ms-2" href="#" style="color: #1D3A6B !important;">
+            <i class="bi bi-mortarboard-fill" style="color: #1D3A6B;"></i>
+            <span class="ms-2">SIS</span>
+        </a>
+        
+        <div class="navbar-nav ms-auto">
+            <!-- Notifications Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge" style="display: none;">
+                        0
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" id="notifications-menu">
+                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="#" id="no-notifications">No new notifications</a></li>
+                </ul>
+            </div>
+            
+            <!-- Messages Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link position-relative" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-envelope"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="message-badge" style="display: none;">
+                        0
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messagesDropdown">
+                    <li><h6 class="dropdown-header">Messages</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../messages/inbox.html">Inbox</a></li>
+                    <li><a class="dropdown-item" href="../messages/compose.html">Compose</a></li>
+                </ul>
+            </div>
+            
+            <!-- User Dropdown -->
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
+                    <span id="user-name" class="ms-1 d-none d-md-inline"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header" id="user-role"></h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" id="profile-link"><i class="bi bi-person"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="#" id="settings-link"><i class="bi bi-gear"></i> Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" id="logout-link"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Navbar initialization script
+$(document).ready(function() {
+    const user = getCurrentUser();
+    if (user) {
+        $('#user-name').text(user.full_name || user.username);
+        $('#user-role').text(getRoleDisplayName(user.role));
+    }
+    
+    // Logout handler
+    $('#logout-link').on('click', function(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to logout?')) {
+            logout();
+        }
+    });
+    
+    // Sidebar toggle for mobile
+    $('#sidebar-toggle').on('click', function() {
+        $('.sidebar').toggleClass('show');
+    });
+    
+    // Load notifications count
+    if (isAuthenticated()) {
+        NotificationAPI.list({ is_read: false })
+            .then(function(response) {
+                if (response.status === 'success' && response.data.unread_count > 0) {
+                    $('#notification-badge').text(response.data.unread_count).show();
+                }
+            })
+            .catch(function() {
+                // Silently fail
+            });
+    }
+});
+</script>
+

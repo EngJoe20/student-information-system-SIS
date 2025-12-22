@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <h1 class="mb-4">Student Dashboard</h1>
+            
+            <!-- Student Profile Card -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h3 id="student-name" class="mb-2">Loading...</h3>
+                                    <p class="text-muted mb-1">
+                                        <strong>Student ID:</strong> <span id="student-id">-</span>
+                                    </p>
+                                    <p class="text-muted mb-1">
+                                        <strong>Academic Status:</strong> <span id="academic-status">-</span>
+                                    </p>
+                                    <p class="text-muted mb-0">
+                                        <strong>Cumulative GPA:</strong> <span id="cumulative-gpa" class="fw-bold text-primary">-</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <a href="../students/view.html" class="btn btn-primary">
+                                        <i class="bi bi-person"></i> View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stats-value" id="enrolled-courses">0</div>
+                        <div class="stats-label">Enrolled Courses</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card success">
+                        <div class="stats-value" id="total-credits">0</div>
+                        <div class="stats-label">Total Credits</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card info">
+                        <div class="stats-value" id="semester-gpa">0.00</div>
+                        <div class="stats-label">Semester GPA</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card warning">
+                        <div class="stats-value" id="attendance-rate">0%</div>
+                        <div class="stats-label">Attendance Rate</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Semester Info -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar3"></i> Current Semester
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Semester:</strong> <span id="current-semester">-</span></p>
+                                    <p><strong>Academic Year:</strong> <span id="academic-year">-</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Enrolled Courses:</strong> <span id="current-enrolled-courses">0</span></p>
+                                    <p><strong>Total Credits:</strong> <span id="current-total-credits">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enrolled Classes -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-book"></i> My Classes
+                            </h5>
+                            <a href="../classes/list.html" class="btn btn-sm btn-primary">
+                                Browse Classes
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div id="classes-list">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Exams -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-event"></i> Upcoming Exams
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="upcoming-exams">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Grades -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clipboard-data"></i> Recent Grades
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recent-grades">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Attendance Summary -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-check"></i> Attendance Summary
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Overall Attendance Rate:</strong> 
+                                        <span id="overall-attendance-rate" class="fw-bold">-</span>
+                                    </p>
+                                    <p><strong>Classes at Risk:</strong> 
+                                        <span id="classes-at-risk" class="badge bg-warning">0</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <a href="../attendance/list.html" class="btn btn-primary">
+                                        View Full Attendance
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check authentication and role
+            if (!requireRole(CONFIG.ROLES.STUDENT)) {
+                return;
+            }
+            
+            // Load navbar and sidebar
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Load dashboard data
+            loadDashboardData();
+        });
+        
+        function loadDashboardData() {
+            DashboardAPI.getStudent()
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const data = response.data;
+                        
+                        // Student profile
+                        $('#student-name').text(data.student_profile.name);
+                        $('#student-id').text(data.student_profile.student_id);
+                        $('#academic-status').html(getStatusBadge(data.student_profile.academic_status));
+                        $('#cumulative-gpa').text(formatGPA(data.student_profile.cumulative_gpa));
+                        
+                        // Stats
+                        $('#enrolled-courses').text(data.current_semester.enrolled_courses);
+                        $('#total-credits').text(data.current_semester.total_credits);
+                        $('#semester-gpa').text(formatGPA(data.current_semester.semester_gpa));
+                        $('#attendance-rate').text(formatPercentage(data.attendance_summary.attendance_rate));
+                        
+                        // Current semester
+                        $('#current-semester').text(data.current_semester.semester);
+                        $('#academic-year').text(data.current_semester.academic_year);
+                        $('#current-enrolled-courses').text(data.current_semester.enrolled_courses);
+                        $('#current-total-credits').text(data.current_semester.total_credits);
+                        
+                        // Enrolled classes
+                        renderClasses(data.enrolled_classes);
+                        
+                        // Upcoming exams
+                        renderUpcomingExams(data.upcoming_exams);
+                        
+                        // Recent grades
+                        renderRecentGrades(data.recent_grades);
+                        
+                        // Attendance summary
+                        $('#overall-attendance-rate').text(formatPercentage(data.attendance_summary.attendance_rate));
+                        $('#classes-at-risk').text(data.attendance_summary.classes_at_risk);
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to load dashboard data', 'error');
+                    console.error(error);
+                });
+        }
+        
+        function renderClasses(classes) {
+            if (!classes || classes.length === 0) {
+                $('#classes-list').html('<p class="text-muted text-center py-3">No enrolled classes</p>');
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
+            html += '<th>Class Code</th><th>Course</th><th>Instructor</th><th>Schedule</th><th>Current Grade</th>';
+            html += '</tr></thead><tbody>';
+            
+            classes.forEach(function(cls) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(cls.class_code) + '</td>';
+                html += '<td>' + escapeHtml(cls.course_name) + '</td>';
+                html += '<td>' + escapeHtml(cls.instructor_name) + '</td>';
+                html += '<td><small>' + formatSchedule(cls.schedule) + '</small></td>';
+                html += '<td>' + (cls.current_grade ? escapeHtml(cls.current_grade) : '-') + '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#classes-list').html(html);
+        }
+        
+        function renderUpcomingExams(exams) {
+            if (!exams || exams.length === 0) {
+                $('#upcoming-exams').html('<p class="text-muted text-center py-3">No upcoming exams</p>');
+                return;
+            }
+            
+            let html = '<ul class="list-group list-group-flush">';
+            exams.forEach(function(exam) {
+                html += '<li class="list-group-item">';
+                html += '<div class="d-flex justify-content-between align-items-start">';
+                html += '<div>';
+                html += '<h6 class="mb-1">' + escapeHtml(exam.course_name) + '</h6>';
+                html += '<small class="text-muted">' + escapeHtml(exam.exam_type) + '</small>';
+                html += '</div>';
+                html += '<div class="text-end">';
+                html += '<small class="text-muted">' + formatDateTime(exam.exam_date) + '</small><br>';
+                html += '<small class="text-muted">' + escapeHtml(exam.room) + '</small>';
+                html += '</div>';
+                html += '</div>';
+                html += '</li>';
+            });
+            html += '</ul>';
+            $('#upcoming-exams').html(html);
+        }
+        
+        function renderRecentGrades(grades) {
+            if (!grades || grades.length === 0) {
+                $('#recent-grades').html('<p class="text-muted text-center py-3">No recent grades</p>');
+                return;
+            }
+            
+            let html = '<ul class="list-group list-group-flush">';
+            grades.forEach(function(grade) {
+                html += '<li class="list-group-item">';
+                html += '<div class="d-flex justify-content-between align-items-start">';
+                html += '<div>';
+                html += '<h6 class="mb-1">' + escapeHtml(grade.course_name) + '</h6>';
+                html += '<small class="text-muted">' + escapeHtml(grade.assignment_name) + '</small>';
+                html += '</div>';
+                html += '<div class="text-end">';
+                html += '<span class="badge bg-primary">' + escapeHtml(grade.grade) + '</span><br>';
+                html += '<small class="text-muted">' + formatDate(grade.date) + '</small>';
+                html += '</div>';
+                html += '</div>';
+                html += '</li>';
+            });
+            html += '</ul>';
+            $('#recent-grades').html(html);
+        }
+        
+        function formatSchedule(schedule) {
+            if (!schedule || schedule.length === 0) return 'TBA';
+            return schedule.map(function(s) {
+                return s.day + ' ' + s.start_time + '-' + s.end_time;
+            }).join(', ');
+        }
+    </script>
+</body>
+</html>
+

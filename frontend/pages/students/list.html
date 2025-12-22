@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Students</h1>
+                <div id="create-button-container">
+                    <!-- Create button shown only for Admin/Registrar -->
+                </div>
+            </div>
+            
+            <!-- Search and Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="search-input" 
+                               placeholder="Search by name, ID, or email...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="SUSPENDED">Suspended</option>
+                            <option value="GRADUATED">Graduated</option>
+                            <option value="WITHDRAWN">Withdrawn</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="order-by">
+                            <option value="-created_at">Newest First</option>
+                            <option value="created_at">Oldest First</option>
+                            <option value="student_id">Student ID</option>
+                            <option value="-gpa">GPA (High to Low)</option>
+                            <option value="gpa">GPA (Low to High)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" id="search-btn">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Students Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div id="students-table-container">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div id="pagination-container" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilters = {};
+        
+        $(document).ready(function() {
+            // Check authentication
+            if (!requireAuth()) {
+                return;
+            }
+            
+            // Load navbar and sidebar
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Check if user can create students
+            const user = getCurrentUser();
+            if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                $('#create-button-container').html(
+                    '<a href="create.html" class="btn btn-primary">' +
+                    '<i class="bi bi-person-plus"></i> Add Student</a>'
+                );
+            }
+            
+            // Load students
+            loadStudents();
+            
+            // Search button click
+            $('#search-btn').on('click', function() {
+                currentPage = 1;
+                loadStudents();
+            });
+            
+            // Enter key in search
+            $('#search-input').on('keypress', function(e) {
+                if (e.which === 13) {
+                    currentPage = 1;
+                    loadStudents();
+                }
+            });
+            
+            // Filter change
+            $('#status-filter, #order-by').on('change', function() {
+                currentPage = 1;
+                loadStudents();
+            });
+        });
+        
+        function loadStudents() {
+            const params = {
+                page: currentPage
+            };
+            
+            const search = $('#search-input').val().trim();
+            if (search) {
+                params.search = search;
+            }
+            
+            const status = $('#status-filter').val();
+            if (status) {
+                params.academic_status = status;
+            }
+            
+            const orderBy = $('#order-by').val();
+            if (orderBy) {
+                params.order_by = orderBy;
+            }
+            
+            currentFilters = params;
+            
+            showLoading('#students-table-container');
+            
+            StudentAPI.list(params)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderStudentsTable(response.data);
+                        renderPagination(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#students-table-container').html(
+                        '<div class="alert alert-danger">Failed to load students. Please try again.</div>'
+                    );
+                    console.error(error);
+                });
+        }
+        
+        function renderStudentsTable(data) {
+            if (!data.results || data.results.length === 0) {
+                $('#students-table-container').html(
+                    '<div class="empty-state">' +
+                    '<i class="bi bi-inbox"></i>' +
+                    '<p class="mt-3">No students found</p>' +
+                    '</div>'
+                );
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover">';
+            html += '<thead><tr>';
+            html += '<th>Student ID</th>';
+            html += '<th>Name</th>';
+            html += '<th>Email</th>';
+            html += '<th>Status</th>';
+            html += '<th>GPA</th>';
+            html += '<th>Enrollment Date</th>';
+            html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            data.results.forEach(function(student) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(student.student_id) + '</td>';
+                html += '<td>' + escapeHtml(student.full_name) + '</td>';
+                html += '<td>' + escapeHtml(student.email) + '</td>';
+                html += '<td>' + getStatusBadge(student.academic_status) + '</td>';
+                html += '<td>' + formatGPA(student.gpa) + '</td>';
+                html += '<td>' + formatDate(student.enrollment_date) + '</td>';
+                html += '<td>';
+                html += '<a href="view.html?id=' + student.id + '" class="btn btn-sm btn-outline-primary" title="View">';
+                html += '<i class="bi bi-eye"></i></a> ';
+                
+                const user = getCurrentUser();
+                if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                    html += '<a href="edit.html?id=' + student.id + '" class="btn btn-sm btn-outline-secondary" title="Edit">';
+                    html += '<i class="bi bi-pencil"></i></a>';
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#students-table-container').html(html);
+        }
+        
+        function renderPagination(data) {
+            if (!data.count || data.count <= CONFIG.DEFAULT_PAGE_SIZE) {
+                $('#pagination-container').html('');
+                return;
+            }
+            
+            const totalPages = Math.ceil(data.count / CONFIG.DEFAULT_PAGE_SIZE);
+            let html = '<nav><ul class="pagination justify-content-center">';
+            
+            // Previous button
+            if (data.previous) {
+                html += '<li class="page-item"><a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a></li>';
+            } else {
+                html += '<li class="page-item disabled"><span class="page-link">Previous</span></li>';
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += '<li class="page-item active"><span class="page-link">' + i + '</span></li>';
+                } else {
+                    html += '<li class="page-item"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+                }
+            }
+            
+            // Next button
+            if (data.next) {
+                html += '<li class="page-item"><a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a></li>';
+            } else {
+                html += '<li class="page-item disabled"><span class="page-link">Next</span></li>';
+            }
+            
+            html += '</ul></nav>';
+            html += '<p class="text-center text-muted mt-2">Showing ' + 
+                    ((currentPage - 1) * CONFIG.DEFAULT_PAGE_SIZE + 1) + ' to ' + 
+                    Math.min(currentPage * CONFIG.DEFAULT_PAGE_SIZE, data.count) + 
+                    ' of ' + data.count + ' students</p>';
+            
+            $('#pagination-container').html(html);
+            
+            // Pagination click handlers
+            $('#pagination-container .page-link[data-page]').on('click', function(e) {
+                e.preventDefault();
+                currentPage = parseInt($(this).data('page'));
+                loadStudents();
+                window.scrollTo(0, 0);
+            });
+        }
+    </script>
+</body>
+</html>
+

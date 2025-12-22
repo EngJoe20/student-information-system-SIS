@@ -1,0 +1,220 @@
+/**
+ * SIS Frontend - Theme Color Overrides
+ * Additional Bootstrap overrides for custom color palette
+ */
+
+/* Color Palette */
+:root {
+    --theme-primary: #1D3A6B;
+    --theme-secondary: #9EB3C2;
+    --theme-accent: #D0A138;
+}
+
+/* Bootstrap Overrides */
+.text-primary {
+    color: var(--theme-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--theme-primary) !important;
+}
+
+.border-primary {
+    border-color: var(--theme-primary) !important;
+}
+
+.btn-primary {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #2d4a7a;
+    border-color: #2d4a7a;
+}
+
+.btn-outline-primary {
+    color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+    color: #fff;
+}
+
+/* Link Colors */
+a {
+    color: var(--theme-primary);
+}
+
+a:hover {
+    color: var(--theme-accent);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: 1px solid rgba(158, 179, 194, 0.3);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(158, 179, 194, 0.1);
+    color: var(--theme-primary);
+}
+
+.dropdown-item.active {
+    background-color: var(--theme-primary);
+}
+
+/* Alert Colors */
+.alert-primary {
+    background-color: rgba(29, 58, 107, 0.1);
+    border-color: var(--theme-primary);
+    color: var(--theme-primary);
+}
+
+.alert-warning {
+    background-color: rgba(208, 161, 56, 0.1);
+    border-color: var(--theme-accent);
+    color: #856825;
+}
+
+/* Progress Bars */
+.progress-bar {
+    background-color: var(--theme-primary);
+}
+
+.progress-bar.bg-warning {
+    background-color: var(--theme-accent) !important;
+}
+
+/* List Group */
+.list-group-item.active {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+.list-group-item:hover {
+    background-color: rgba(158, 179, 194, 0.1);
+}
+
+/* Navbar Dropdown Icons */
+.nav-link i {
+    color: var(--theme-primary);
+}
+
+.nav-link:hover i {
+    color: var(--theme-accent);
+}
+
+/* Card Headers with Primary Color */
+.card-header.bg-primary {
+    background-color: var(--theme-primary) !important;
+    color: #fff;
+}
+
+/* Spinner Colors */
+.spinner-border-primary {
+    border-color: var(--theme-primary);
+    border-right-color: transparent;
+}
+
+/* Custom Accent Highlights */
+.highlight-accent {
+    color: var(--theme-accent);
+    font-weight: 600;
+}
+
+.bg-accent {
+    background-color: var(--theme-accent) !important;
+    color: #fff !important;
+}
+
+/* Sidebar Active State Enhancement */
+.sidebar .nav-link.active {
+    background: linear-gradient(90deg, rgba(29, 58, 107, 0.15) 0%, rgba(29, 58, 107, 0.05) 100%);
+}
+
+/* Stats Card Enhancements */
+.stats-card {
+    box-shadow: 0 4px 6px rgba(29, 58, 107, 0.1);
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(29, 58, 107, 0.15);
+    transition: all 0.3s ease;
+}
+
+/* Input Focus States */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 0.25rem rgba(29, 58, 107, 0.25);
+}
+
+/* Checkbox and Radio */
+.form-check-input:checked {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+/* Switch/Toggle */
+.form-switch .form-check-input:checked {
+    background-color: var(--theme-primary);
+}
+
+/* Breadcrumb */
+.breadcrumb-item.active {
+    color: var(--theme-primary);
+}
+
+/* Pagination Active State */
+.page-item.active .page-link {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+/* Tooltip */
+.tooltip .tooltip-inner {
+    background-color: var(--theme-primary);
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--theme-primary);
+}
+
+/* Modal Header */
+.modal-header {
+    border-bottom: 2px solid var(--theme-primary);
+}
+
+.modal-header .modal-title {
+    color: var(--theme-primary);
+}
+
+/* Tabs */
+.nav-tabs .nav-link.active {
+    color: var(--theme-primary);
+    border-bottom-color: var(--theme-primary);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--theme-secondary);
+    color: var(--theme-primary);
+}
+
+/* Accordion */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(29, 58, 107, 0.1);
+    color: var(--theme-primary);
+}
+
+.accordion-button:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 0.25rem rgba(29, 58, 107, 0.25);
+}
+
