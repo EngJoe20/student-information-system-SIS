@@ -29,7 +29,10 @@ function apiRequest(url, method = 'GET', data = null, options = {}) {
     
     return $.ajax(defaultOptions)
         .fail(function(xhr) {
-            handleApiError(xhr);
+            // Only handle errors if not in auth flow (login/2FA pages handle their own errors)
+            if (!window.location.pathname.includes('login.html')) {
+                handleApiError(xhr);
+            }
             throw xhr;
         });
 }

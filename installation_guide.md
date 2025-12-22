@@ -3,17 +3,20 @@
 ## 🚀 Quick Start (Development)
 
 ### Prerequisites
+
 - Python 3.11+
 - PostgreSQL 15+ (optional, SQLite works for dev)
 - Git
 
 ### Step 1: Clone Repository
+
 ```bash
 git clone <your-repo-url>
 cd student-information-system-SIS
 ```
 
 ### Step 2: Create Virtual Environment
+
 ```bash
 # Windows
 python -m venv venv
@@ -25,12 +28,14 @@ source venv/bin/activate
 ```
 
 ### Step 3: Install Dependencies
+
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 ### Step 4: Environment Configuration
+
 ```bash
 # Create .env file
 cp .env.example .env
@@ -42,6 +47,7 @@ DEBUG=True
 ```
 
 ### Step 5: Database Setup
+
 ```bash
 # Create necessary directories
 mkdir -p logs media staticfiles
@@ -54,11 +60,13 @@ python manage.py createsuperuser
 ```
 
 ### Step 6: Run Development Server
+
 ```bash
 python manage.py runserver
 ```
 
 ### Step 7: Access the Application
+
 - **API Root**: http://localhost:8000/
 - **Admin Panel**: http://localhost:8000/admin/
 - **Swagger API Docs**: http://localhost:8000/swagger/
@@ -69,6 +77,7 @@ python manage.py runserver
 ## 📝 .env Configuration
 
 ### Minimal Development Setup
+
 ```env
 # Django
 SECRET_KEY=your-secret-key-here
@@ -87,10 +96,11 @@ EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 
 # URLs
 SITE_URL=http://localhost:8000
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:8080
 ```
 
 ### Full Production Setup
+
 ```env
 # Django
 SECRET_KEY=your-production-secret-key
@@ -140,6 +150,7 @@ FRONTEND_URL=https://your-frontend.com
 ## 🗄️ PostgreSQL Setup (Optional for Development)
 
 ### Install PostgreSQL
+
 ```bash
 # Ubuntu/Debian
 sudo apt install postgresql postgresql-contrib
@@ -152,6 +163,7 @@ brew install postgresql
 ```
 
 ### Create Database
+
 ```bash
 # Access PostgreSQL
 sudo -u postgres psql
@@ -167,6 +179,7 @@ GRANT ALL PRIVILEGES ON DATABASE sis_db TO sis_user;
 ```
 
 ### Update .env for PostgreSQL
+
 ```env
 DATABASE_ENGINE=django.db.backends.postgresql
 DATABASE_NAME=sis_db
@@ -181,18 +194,21 @@ DATABASE_PORT=5432
 ## 🔑 Initial Data Setup
 
 ### Create Superuser (Admin)
+
 ```bash
 python manage.py createsuperuser
 # Enter: username, email, password
 ```
 
 ### Create Sample Data (Optional)
+
 ```bash
 # Create management command: students/management/commands/create_sample_data.py
 python manage.py create_sample_data
 ```
 
 ### Sample Data Script
+
 ```python
 # students/management/commands/create_sample_data.py
 from django.core.management.base import BaseCommand
@@ -214,7 +230,7 @@ class Command(BaseCommand):
             last_name='User',
             role='ADMIN'
         )
-        
+
         instructor = User.objects.create_user(
             username='instructor1',
             email='instructor@sis.com',
@@ -223,7 +239,7 @@ class Command(BaseCommand):
             last_name='Smith',
             role='INSTRUCTOR'
         )
-        
+
         # Create student
         student_user = User.objects.create_user(
             username='student1',
@@ -233,7 +249,7 @@ class Command(BaseCommand):
             last_name='Doe',
             role='STUDENT'
         )
-        
+
         student = Student.objects.create(
             user=student_user,
             student_id='S2025001',
@@ -242,7 +258,7 @@ class Command(BaseCommand):
             enrollment_date=date.today(),
             academic_status='ACTIVE'
         )
-        
+
         # Create course
         course = Course.objects.create(
             course_code='CS101',
@@ -251,7 +267,7 @@ class Command(BaseCommand):
             credits=3,
             department='Computer Science'
         )
-        
+
         # Create room
         room = Room.objects.create(
             room_number='101',
@@ -259,7 +275,7 @@ class Command(BaseCommand):
             capacity=30,
             room_type='CLASSROOM'
         )
-        
+
         # Create class
         class_obj = Class.objects.create(
             course=course,
@@ -272,7 +288,7 @@ class Command(BaseCommand):
             room=room,
             status='OPEN'
         )
-        
+
         self.stdout.write(self.style.SUCCESS('Sample data created successfully!'))
 ```
 
@@ -281,6 +297,7 @@ class Command(BaseCommand):
 ## 🧪 Testing the Installation
 
 ### Test API Endpoints
+
 ```bash
 # Test login
 curl -X POST http://localhost:8000/api/v1/auth/login/ \
@@ -292,6 +309,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login/ \
 ```
 
 ### Run Tests
+
 ```bash
 # Run all tests
 pytest
@@ -346,6 +364,7 @@ python manage.py showmigrations
 ## 🔧 Troubleshooting
 
 ### Issue: ModuleNotFoundError
+
 ```bash
 # Make sure virtual environment is activated
 # Reinstall dependencies
@@ -353,6 +372,7 @@ pip install -r requirements.txt
 ```
 
 ### Issue: Database errors
+
 ```bash
 # Delete database and migrations (DEVELOPMENT ONLY!)
 rm db.sqlite3
@@ -366,6 +386,7 @@ python manage.py createsuperuser
 ```
 
 ### Issue: Port already in use
+
 ```bash
 # Kill process on port 8000
 # Linux/Mac
@@ -377,11 +398,13 @@ taskkill /PID <PID> /F
 ```
 
 ### Issue: Static files not loading
+
 ```bash
 python manage.py collectstatic --clear --noinput
 ```
 
 ### Issue: CSRF token errors
+
 ```bash
 # Clear browser cookies
 # Make sure CSRF_COOKIE_HTTPONLY = False in settings
@@ -393,11 +416,13 @@ python manage.py collectstatic --clear --noinput
 ## 📊 Database Migrations
 
 ### Create New App
+
 ```bash
 python manage.py startapp app_name
 ```
 
 ### Add to INSTALLED_APPS
+
 ```python
 # settings/base.py
 INSTALLED_APPS = [
@@ -407,6 +432,7 @@ INSTALLED_APPS = [
 ```
 
 ### Create Migrations
+
 ```bash
 python manage.py makemigrations app_name
 python manage.py migrate app_name
@@ -417,6 +443,7 @@ python manage.py migrate app_name
 ## 🔐 Security Checklist
 
 ### Development
+
 - [ ] DEBUG=True
 - [ ] Use SQLite
 - [ ] Console email backend
@@ -424,6 +451,7 @@ python manage.py migrate app_name
 - [ ] No HTTPS required
 
 ### Production
+
 - [ ] DEBUG=False
 - [ ] Use PostgreSQL
 - [ ] SMTP email backend
@@ -440,16 +468,19 @@ python manage.py migrate app_name
 ## 📖 Next Steps
 
 1. **Read Documentation**
+
    - Review PROJECT_SUMMARY.md
    - Check API documentation at /swagger/
    - Read DEPLOYMENT.md for production
 
 2. **Explore the API**
+
    - Use Swagger UI for testing
    - Try different user roles
    - Test CRUD operations
 
 3. **Customize**
+
    - Add your branding
    - Configure email templates
    - Set up your domain
@@ -465,6 +496,7 @@ python manage.py migrate app_name
 ## 🆘 Getting Help
 
 ### Resources
+
 - **API Docs**: http://localhost:8000/swagger/
 - **Project Summary**: PROJECT_SUMMARY.md
 - **Deployment Guide**: DEPLOYMENT.md
@@ -472,6 +504,7 @@ python manage.py migrate app_name
 - **DRF Docs**: https://www.django-rest-framework.org/
 
 ### Common Issues
+
 - Check logs in `logs/` directory
 - Review error messages carefully
 - Verify environment variables

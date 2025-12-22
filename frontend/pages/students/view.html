@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Student - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Student Details</h1>
+                <div>
+                    <a href="list.html" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    <span id="edit-button-container"></span>
+                </div>
+            </div>
+            
+            <div id="loading-container" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <div id="student-details" style="display: none;">
+                <!-- Student Profile Card -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h3 id="student-name" class="mb-2"></h3>
+                                        <p class="text-muted mb-1">
+                                            <strong>Student ID:</strong> <span id="student-id"></span>
+                                        </p>
+                                        <p class="text-muted mb-1">
+                                            <strong>Email:</strong> <span id="student-email"></span>
+                                        </p>
+                                        <p class="text-muted mb-1">
+                                            <strong>Academic Status:</strong> <span id="academic-status"></span>
+                                        </p>
+                                        <p class="text-muted mb-0">
+                                            <strong>GPA:</strong> <span id="student-gpa" class="fw-bold text-primary"></span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <span id="action-buttons"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <ul class="nav nav-tabs mb-4" id="student-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                            Profile
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="enrollments-tab" data-bs-toggle="tab" data-bs-target="#enrollments" type="button" role="tab">
+                            Enrollments
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab">
+                            Attendance
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="grades-tab" data-bs-toggle="tab" data-bs-target="#grades" type="button" role="tab">
+                            Grades
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript" type="button" role="tab">
+                            Transcript
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="student-tab-content">
+                    <!-- Profile Tab -->
+                    <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Personal Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Date of Birth:</strong> <span id="date-of-birth"></span></p>
+                                        <p><strong>Gender:</strong> <span id="gender"></span></p>
+                                        <p><strong>Phone:</strong> <span id="phone"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Address Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p id="address-line1"></p>
+                                        <p id="address-line2"></p>
+                                        <p id="address-line3"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Emergency Contact</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Name:</strong> <span id="emergency-name"></span></p>
+                                        <p><strong>Phone:</strong> <span id="emergency-phone"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Enrollment Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Enrollment Date:</strong> <span id="enrollment-date"></span></p>
+                                        <p><strong>Graduation Date:</strong> <span id="graduation-date"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enrollments Tab -->
+                    <div class="tab-pane fade" id="enrollments" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="enrollments-list">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance Tab -->
+                    <div class="tab-pane fade" id="attendance" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="attendance-list">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Grades Tab -->
+                    <div class="tab-pane fade" id="grades" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="grades-list">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Transcript Tab -->
+                    <div class="tab-pane fade" id="transcript" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5>Official Transcript</h5>
+                                    <button class="btn btn-primary" id="download-transcript-btn">
+                                        <i class="bi bi-download"></i> Download PDF
+                                    </button>
+                                </div>
+                                <div id="transcript-content">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let studentId = null;
+        
+        $(document).ready(function() {
+            // Check authentication
+            if (!requireAuth()) {
+                return;
+            }
+            
+            // Load navbar and sidebar
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Get student ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            studentId = urlParams.get('id');
+            
+            if (!studentId) {
+                // If no ID, check if user is a student viewing their own profile
+                const user = getCurrentUser();
+                if (user && user.role === CONFIG.ROLES.STUDENT) {
+                    // Get student ID from user profile
+                    StudentAPI.list({ search: user.username })
+                        .then(function(response) {
+                            if (response.status === 'success' && response.data.results.length > 0) {
+                                studentId = response.data.results[0].id;
+                                loadStudentDetails();
+                            } else {
+                                showToast('Student profile not found', 'error');
+                            }
+                        });
+                } else {
+                    showToast('Student ID is required', 'error');
+                    setTimeout(() => window.location.href = 'list.html', 2000);
+                }
+            } else {
+                loadStudentDetails();
+            }
+            
+            // Tab change handlers
+            $('#enrollments-tab').on('click', function() {
+                if (studentId) loadEnrollments();
+            });
+            $('#attendance-tab').on('click', function() {
+                if (studentId) loadAttendance();
+            });
+            $('#grades-tab').on('click', function() {
+                if (studentId) loadGrades();
+            });
+            $('#transcript-tab').on('click', function() {
+                if (studentId) loadTranscript();
+            });
+            
+            // Download transcript
+            $('#download-transcript-btn').on('click', function() {
+                if (studentId) {
+                    window.open(CONFIG.API_BASE_URL + '/reports/transcript/' + studentId + '/?format=pdf', '_blank');
+                }
+            });
+        });
+        
+        function loadStudentDetails() {
+            StudentAPI.get(studentId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const student = response.data;
+                        renderStudentDetails(student);
+                        
+                        // Check permissions for edit button
+                        const user = getCurrentUser();
+                        if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                            $('#edit-button-container').html(
+                                '<a href="edit.html?id=' + student.id + '" class="btn btn-primary ms-2">' +
+                                '<i class="bi bi-pencil"></i> Edit</a>'
+                            );
+                        }
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to load student details', 'error');
+                    console.error(error);
+                });
+        }
+        
+        function renderStudentDetails(student) {
+            $('#student-name').text(student.full_name);
+            $('#student-id').text(student.student_id);
+            $('#student-email').text(student.email || 'N/A');
+            $('#academic-status').html(getStatusBadge(student.academic_status));
+            $('#student-gpa').text(formatGPA(student.gpa));
+            
+            // Personal Information
+            $('#date-of-birth').text(formatDate(student.date_of_birth));
+            $('#gender').text(student.gender || 'N/A');
+            $('#phone').text(student.user?.phone_number || 'N/A');
+            
+            // Address
+            const addressParts = [];
+            if (student.address) addressParts.push(student.address);
+            if (student.city) addressParts.push(student.city);
+            if (student.state) addressParts.push(student.state);
+            if (student.postal_code) addressParts.push(student.postal_code);
+            if (student.country) addressParts.push(student.country);
+            
+            if (addressParts.length > 0) {
+                $('#address-line1').text(addressParts[0] || '');
+                $('#address-line2').text(addressParts.slice(1, 3).join(', ') || '');
+                $('#address-line3').text(addressParts.slice(3).join(', ') || '');
+            } else {
+                $('#address-line1').text('No address on file');
+                $('#address-line2').text('');
+                $('#address-line3').text('');
+            }
+            
+            // Emergency Contact
+            $('#emergency-name').text(student.emergency_contact_name || 'N/A');
+            $('#emergency-phone').text(student.emergency_contact_phone || 'N/A');
+            
+            // Enrollment
+            $('#enrollment-date').text(formatDate(student.enrollment_date));
+            $('#graduation-date').text(formatDate(student.graduation_date));
+            
+            $('#loading-container').hide();
+            $('#student-details').show();
+        }
+        
+        function loadEnrollments() {
+            StudentAPI.getEnrollments(studentId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderEnrollments(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#enrollments-list').html('<div class="alert alert-danger">Failed to load enrollments</div>');
+                });
+        }
+        
+        function renderEnrollments(enrollments) {
+            if (!enrollments || enrollments.length === 0) {
+                $('#enrollments-list').html('<p class="text-muted text-center py-3">No enrollments found</p>');
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
+            html += '<th>Class Code</th><th>Course</th><th>Instructor</th><th>Semester</th><th>Status</th><th>Grade</th>';
+            html += '</tr></thead><tbody>';
+            
+            enrollments.forEach(function(enrollment) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(enrollment.class_code) + '</td>';
+                html += '<td>' + escapeHtml(enrollment.course_name) + '</td>';
+                html += '<td>' + escapeHtml(enrollment.instructor_name) + '</td>';
+                html += '<td>' + escapeHtml(enrollment.semester) + ' ' + enrollment.academic_year + '</td>';
+                html += '<td>' + getStatusBadge(enrollment.status) + '</td>';
+                html += '<td>' + (enrollment.grade ? escapeHtml(enrollment.grade) : '-') + '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#enrollments-list').html(html);
+        }
+        
+        function loadAttendance() {
+            StudentAPI.getAttendance(studentId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderAttendance(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#attendance-list').html('<div class="alert alert-danger">Failed to load attendance</div>');
+                });
+        }
+        
+        function renderAttendance(attendance) {
+            if (!attendance || attendance.length === 0) {
+                $('#attendance-list').html('<p class="text-muted text-center py-3">No attendance records found</p>');
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
+            html += '<th>Course</th><th>Date</th><th>Status</th>';
+            html += '</tr></thead><tbody>';
+            
+            attendance.forEach(function(record) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(record.course) + '</td>';
+                html += '<td>' + formatDate(record.date) + '</td>';
+                html += '<td>' + getStatusBadge(record.status) + '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#attendance-list').html(html);
+        }
+        
+        function loadGrades() {
+            StudentAPI.getGrades(studentId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderGrades(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#grades-list').html('<div class="alert alert-danger">Failed to load grades</div>');
+                });
+        }
+        
+        function renderGrades(grades) {
+            if (!grades || grades.length === 0) {
+                $('#grades-list').html('<p class="text-muted text-center py-3">No grades found</p>');
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
+            html += '<th>Course</th><th>Grade</th><th>Status</th>';
+            html += '</tr></thead><tbody>';
+            
+            grades.forEach(function(grade) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(grade.course) + '</td>';
+                html += '<td>' + escapeHtml(grade.grade) + '</td>';
+                html += '<td>' + getStatusBadge(grade.status) + '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#grades-list').html(html);
+        }
+        
+        function loadTranscript() {
+            StudentAPI.getTranscript(studentId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderTranscript(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#transcript-content').html('<div class="alert alert-danger">Failed to load transcript</div>');
+                });
+        }
+        
+        function renderTranscript(transcript) {
+            let html = '<div class="transcript">';
+            html += '<h5>Student: ' + escapeHtml(transcript.student) + '</h5>';
+            html += '<p><strong>GPA:</strong> ' + formatGPA(transcript.gpa) + '</p>';
+            
+            if (transcript.courses && transcript.courses.length > 0) {
+                html += '<div class="table-responsive mt-3"><table class="table"><thead><tr>';
+                html += '<th>Course</th><th>Credits</th><th>Grade</th><th>Grade Points</th>';
+                html += '</tr></thead><tbody>';
+                
+                transcript.courses.forEach(function(course) {
+                    html += '<tr>';
+                    html += '<td>' + escapeHtml(course.course) + '</td>';
+                    html += '<td>' + escapeHtml(course.credits) + '</td>';
+                    html += '<td>' + escapeHtml(course.grade) + '</td>';
+                    html += '<td>' + escapeHtml(course.grade_point) + '</td>';
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+            }
+            
+            html += '</div>';
+            $('#transcript-content').html(html);
+        }
+    </script>
+</body>
+</html>
+

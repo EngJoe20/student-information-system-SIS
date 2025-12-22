@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Dashboard - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <h1 class="mb-4">Instructor Dashboard</h1>
+            
+            <!-- Instructor Profile Card -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h3 id="instructor-name" class="mb-2">Loading...</h3>
+                                    <p class="text-muted mb-0">
+                                        <strong>Department:</strong> <span id="instructor-department">-</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stats-value" id="total-classes">0</div>
+                        <div class="stats-label">Total Classes</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card success">
+                        <div class="stats-value" id="total-students">0</div>
+                        <div class="stats-label">Total Students</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card info">
+                        <div class="stats-value" id="pending-grading">0</div>
+                        <div class="stats-label">Pending Grading</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card warning">
+                        <div class="stats-value" id="upcoming-exams-count">0</div>
+                        <div class="stats-label">Upcoming Exams</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Semester Info -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar3"></i> Current Semester
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Semester:</strong> <span id="current-semester">-</span></p>
+                                    <p><strong>Academic Year:</strong> <span id="academic-year">-</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Total Classes:</strong> <span id="current-total-classes">0</span></p>
+                                    <p><strong>Total Students:</strong> <span id="current-total-students">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- My Classes -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-book"></i> My Classes
+                            </h5>
+                            <a href="../classes/list.html" class="btn btn-sm btn-primary">
+                                View All Classes
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div id="classes-list">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Exams -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-event"></i> Upcoming Exams
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="upcoming-exams">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activities -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clock-history"></i> Recent Activities
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recent-activities">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check authentication and role
+            if (!requireRole(CONFIG.ROLES.INSTRUCTOR)) {
+                return;
+            }
+            
+            // Load navbar and sidebar
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Load dashboard data
+            loadDashboardData();
+        });
+        
+        function loadDashboardData() {
+            DashboardAPI.getInstructor()
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const data = response.data;
+                        
+                        // Instructor profile
+                        $('#instructor-name').text(data.instructor_profile.name);
+                        $('#instructor-department').text(data.instructor_profile.department);
+                        
+                        // Stats
+                        $('#total-classes').text(data.current_semester.total_classes);
+                        $('#total-students').text(data.current_semester.total_students);
+                        $('#pending-grading').text(data.pending_grading);
+                        $('#upcoming-exams-count').text(data.upcoming_exams ? data.upcoming_exams.length : 0);
+                        
+                        // Current semester
+                        $('#current-semester').text(data.current_semester.semester);
+                        $('#academic-year').text(data.current_semester.academic_year);
+                        $('#current-total-classes').text(data.current_semester.total_classes);
+                        $('#current-total-students').text(data.current_semester.total_students);
+                        
+                        // My classes
+                        renderClasses(data.my_classes);
+                        
+                        // Upcoming exams
+                        renderUpcomingExams(data.upcoming_exams);
+                        
+                        // Recent activities
+                        renderRecentActivities(data.recent_activities);
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to load dashboard data', 'error');
+                    console.error(error);
+                });
+        }
+        
+        function renderClasses(classes) {
+            if (!classes || classes.length === 0) {
+                $('#classes-list').html('<p class="text-muted text-center py-3">No classes assigned</p>');
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
+            html += '<th>Class Code</th><th>Course</th><th>Enrollment</th><th>Attendance Rate</th><th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            classes.forEach(function(cls) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(cls.class_code) + '</td>';
+                html += '<td>' + escapeHtml(cls.course_name) + '</td>';
+                html += '<td>' + escapeHtml(cls.current_enrollment) + ' / ' + escapeHtml(cls.max_capacity) + '</td>';
+                html += '<td>' + formatPercentage(cls.attendance_rate || 0) + '</td>';
+                html += '<td>';
+                html += '<a href="../classes/view.html?id=' + cls.id + '" class="btn btn-sm btn-outline-primary" title="View">';
+                html += '<i class="bi bi-eye"></i></a> ';
+                html += '<a href="../attendance/record.html?class_id=' + cls.id + '" class="btn btn-sm btn-outline-success" title="Record Attendance">';
+                html += '<i class="bi bi-calendar-check"></i></a> ';
+                html += '<a href="../grades/submit.html?class_id=' + cls.id + '" class="btn btn-sm btn-outline-info" title="Submit Grades">';
+                html += '<i class="bi bi-clipboard-data"></i></a>';
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#classes-list').html(html);
+        }
+        
+        function renderUpcomingExams(exams) {
+            if (!exams || exams.length === 0) {
+                $('#upcoming-exams').html('<p class="text-muted text-center py-3">No upcoming exams</p>');
+                return;
+            }
+            
+            let html = '<ul class="list-group list-group-flush">';
+            exams.forEach(function(exam) {
+                html += '<li class="list-group-item">';
+                html += '<div class="d-flex justify-content-between align-items-start">';
+                html += '<div>';
+                html += '<h6 class="mb-1">' + escapeHtml(exam.class_code) + '</h6>';
+                html += '<small class="text-muted">' + escapeHtml(exam.exam_type) + '</small>';
+                html += '</div>';
+                html += '<div class="text-end">';
+                html += '<small class="text-muted">' + formatDateTime(exam.exam_date) + '</small><br>';
+                html += '<small class="text-muted">' + escapeHtml(exam.room) + '</small>';
+                html += '</div>';
+                html += '</div>';
+                html += '</li>';
+            });
+            html += '</ul>';
+            $('#upcoming-exams').html(html);
+        }
+        
+        function renderRecentActivities(activities) {
+            if (!activities || activities.length === 0) {
+                $('#recent-activities').html('<p class="text-muted text-center py-3">No recent activities</p>');
+                return;
+            }
+            
+            let html = '<ul class="list-group list-group-flush">';
+            activities.forEach(function(activity) {
+                html += '<li class="list-group-item">';
+                html += '<div class="d-flex justify-content-between align-items-start">';
+                html += '<div>';
+                html += '<p class="mb-1">' + escapeHtml(activity.description) + '</p>';
+                html += '<small class="text-muted">' + formatDateTime(activity.timestamp) + '</small>';
+                html += '</div>';
+                html += '<span class="badge bg-secondary">' + escapeHtml(activity.action) + '</span>';
+                html += '</div>';
+                html += '</li>';
+            });
+            html += '</ul>';
+            $('#recent-activities').html(html);
+        }
+    </script>
+</body>
+</html>
+

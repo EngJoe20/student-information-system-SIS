@@ -10,48 +10,42 @@ A comprehensive Student Information System built with Django REST Framework, fea
 ## 🎯 Features
 
 ### Core Features
+
 - ✅ **Authentication & Authorization**
   - JWT token-based authentication
   - Two-Factor Authentication (2FA)
   - Role-Based Access Control (4 roles)
   - Password reset & recovery
-  
 - ✅ **Student Management**
   - Complete student profiles
   - Academic status tracking
   - GPA calculation (4.0 scale)
   - Enrollment history
-  
 - ✅ **Course Management**
   - Course catalog with prerequisites
   - Class scheduling & room assignment
   - Instructor management
   - Timetable generation
-  
 - ✅ **Attendance System**
   - Daily attendance tracking
   - Bulk attendance recording
   - Attendance alerts (<75%)
   - Comprehensive reports
-  
 - ✅ **Grade Management**
   - Assignment & exam grades
   - Weighted average calculation
   - Final grade submission
   - Automatic GPA updates
-  
 - ✅ **Communication**
   - In-app notifications
   - Email notifications
   - Internal messaging system
   - Student service requests
-  
 - ✅ **Reporting**
   - PDF transcripts
   - Attendance reports
   - Grade reports
   - CSV/Excel exports
-  
 - ✅ **Advanced Features**
   - Global search
   - Role-specific dashboards
@@ -62,6 +56,7 @@ A comprehensive Student Information System built with Django REST Framework, fea
 ## 🏗️ Technology Stack
 
 **Backend:**
+
 - Python 3.11+
 - Django 5.0
 - Django REST Framework 3.14
@@ -69,6 +64,7 @@ A comprehensive Student Information System built with Django REST Framework, fea
 - Redis 7+ (caching)
 
 **Key Libraries:**
+
 - PyJWT (JWT authentication)
 - PyOTP (2FA)
 - ReportLab (PDF generation)
@@ -125,7 +121,7 @@ student-information-system-SIS/
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── models.py                 
+│   ├── models.py
 │   ├── serializers.py
 │   ├── views.py
 │   ├── urls.py
@@ -239,6 +235,7 @@ student-information-system-SIS/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 ```bash
 # Python 3.11 or higher
 python --version
@@ -253,12 +250,14 @@ git --version
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone <repository-url>
 cd student-information-system-SIS
 ```
 
 2. **Create virtual environment**
+
 ```bash
 # Windows
 python -m venv venv
@@ -270,12 +269,14 @@ source venv/bin/activate
 ```
 
 3. **Install dependencies**
+
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 4. **Environment configuration**
+
 ```bash
 # Create .env file
 cp .env.example .env
@@ -287,6 +288,7 @@ DEBUG=True
 ```
 
 5. **Database setup**
+
 ```bash
 # Create directories
 mkdir -p logs media staticfiles
@@ -302,11 +304,13 @@ python scripts/seed_database.py
 ```
 
 6. **Run development server**
+
 ```bash
 python manage.py runserver
 ```
 
 7. **Access the application**
+
 - API Root: http://localhost:8000/
 - Admin Panel: http://localhost:8000/admin/
 - API Documentation: http://localhost:8000/swagger/
@@ -316,20 +320,22 @@ python manage.py runserver
 
 After running `seed_database.py`:
 
-| Role | Username | Password | Access Level |
-|------|----------|----------|--------------|
-| Admin | admin | Admin123! | Full system access |
-| Registrar | registrar1 | Registrar123! | Student & course management |
-| Instructor | instructor1 | Instructor123! | Grade & attendance |
-| Student | student1 | Student123! | View own information |
+| Role       | Username    | Password       | Access Level                |
+| ---------- | ----------- | -------------- | --------------------------- |
+| Admin      | admin       | Admin123!      | Full system access          |
+| Registrar  | registrar1  | Registrar123!  | Student & course management |
+| Instructor | instructor1 | Instructor123! | Grade & attendance          |
+| Student    | student1    | Student123!    | View own information        |
 
 ## 📚 API Documentation
 
 ### Interactive Documentation
+
 - **Swagger UI**: http://localhost:8000/swagger/
 - **ReDoc**: http://localhost:8000/redoc/
 
 ### API Endpoint Summary
+
 - **Authentication**: 6 endpoints
 - **Users**: 7 endpoints
 - **Students**: 8 endpoints
@@ -375,7 +381,7 @@ EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 
 # URLs
 SITE_URL=http://localhost:8000
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:8080
 ```
 
 See `INSTALLATION.md` for complete configuration guide.
@@ -399,6 +405,7 @@ open htmlcov/index.html
 ## 📊 Scripts
 
 ### Database Seeding
+
 ```bash
 # Seed initial data (20 students, courses, etc.)
 python scripts/seed_database.py
@@ -408,6 +415,7 @@ python scripts/generate_test_data.py
 ```
 
 ### Database Backup
+
 ```bash
 # Linux/Mac
 ./scripts/backup_database.sh
@@ -421,12 +429,15 @@ See `scripts/README.md` for detailed usage.
 ## 🚢 Deployment
 
 ### Development
+
 ```bash
 python manage.py runserver
 ```
 
 ### Production
+
 See `DEPLOYMENT.md` for complete production deployment guide including:
+
 - PostgreSQL setup
 - Gunicorn configuration
 - Nginx setup
@@ -435,6 +446,7 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 - Monitoring & logging
 
 Quick production start:
+
 ```bash
 gunicorn sis_backend.wsgi:application \
   --bind 0.0.0.0:8000 \
@@ -475,13 +487,15 @@ gunicorn sis_backend.wsgi:application \
 ## 🎓 User Roles & Permissions
 
 ### Student
+
 - View own profile & grades
 - Enroll in courses
 - Check attendance
 - Submit service requests
 - Internal messaging
 
-### Instructor  
+### Instructor
+
 - Manage assigned classes
 - Record attendance
 - Submit grades
@@ -489,6 +503,7 @@ gunicorn sis_backend.wsgi:application \
 - Schedule exams
 
 ### Registrar
+
 - Manage students
 - Create courses & classes
 - Process enrollments
@@ -496,6 +511,7 @@ gunicorn sis_backend.wsgi:application \
 - Generate reports
 
 ### Admin
+
 - Full system access
 - User management
 - System configuration
@@ -505,6 +521,7 @@ gunicorn sis_backend.wsgi:application \
 ## 🛠️ Development
 
 ### Project Setup for Development
+
 ```bash
 # Install development dependencies
 pip install -r requirements.txt
@@ -523,6 +540,7 @@ python manage.py runserver
 ```
 
 ### Code Style
+
 ```bash
 # Format code
 black .
@@ -537,6 +555,7 @@ pytest
 ## 📊 Database Models
 
 13 Core Models:
+
 1. User (Custom user with RBAC)
 2. Student
 3. Course
@@ -584,6 +603,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🗺️ Roadmap
 
 ### Phase 2 (Future)
+
 - [ ] Learning Management System integration
 - [ ] Financial management
 - [ ] Library management
@@ -591,6 +611,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Mobile app
 
 ### Phase 3 (Advanced)
+
 - [ ] AI-powered analytics
 - [ ] Predictive models
 - [ ] Alumni management

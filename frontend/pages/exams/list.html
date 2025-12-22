@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exams - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Exams</h1>
+                <div id="create-button-container"></div>
+            </div>
+            
+            <!-- Search and Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="search-input" placeholder="Search...">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="exam-type-filter">
+                            <option value="">All Types</option>
+                            <option value="MIDTERM">Midterm</option>
+                            <option value="FINAL">Final</option>
+                            <option value="QUIZ">Quiz</option>
+                            <option value="PROJECT">Project</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" id="date-filter">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" id="search-btn">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Exams Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div id="exams-table-container">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div id="pagination-container" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        
+        $(document).ready(function() {
+            if (!requireAuth()) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            const user = getCurrentUser();
+            if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                $('#create-button-container').html(
+                    '<a href="create.html" class="btn btn-primary">' +
+                    '<i class="bi bi-plus-circle"></i> Add Exam</a>'
+                );
+            }
+            
+            loadExams();
+            
+            $('#search-btn').on('click', function() {
+                currentPage = 1;
+                loadExams();
+            });
+            
+            $('#search-input').on('keypress', function(e) {
+                if (e.which === 13) {
+                    currentPage = 1;
+                    loadExams();
+                }
+            });
+            
+            $('#exam-type-filter, #date-filter').on('change', function() {
+                currentPage = 1;
+                loadExams();
+            });
+        });
+        
+        function loadExams() {
+            const params = { page: currentPage };
+            
+            const search = $('#search-input').val().trim();
+            if (search) params.search = search;
+            
+            const examType = $('#exam-type-filter').val();
+            if (examType) params.exam_type = examType;
+            
+            const date = $('#date-filter').val();
+            if (date) params.start_date = date;
+            
+            showLoading('#exams-table-container');
+            
+            ExamAPI.list(params)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderExamsTable(response.data);
+                        renderPagination(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#exams-table-container').html(
+                        '<div class="alert alert-danger">Failed to load exams. Please try again.</div>'
+                    );
+                    console.error(error);
+                });
+        }
+        
+        function renderExamsTable(data) {
+            if (!data.results || data.results.length === 0) {
+                $('#exams-table-container').html(
+                    '<div class="empty-state"><i class="bi bi-inbox"></i><p class="mt-3">No exams found</p></div>'
+                );
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
+            html += '<th>Class</th><th>Course</th><th>Exam Type</th><th>Date & Time</th><th>Duration</th><th>Room</th><th>Total Marks</th><th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            data.results.forEach(function(exam) {
+                html += '<tr>';
+                html += '<td>' + escapeHtml(exam.class_code) + '</td>';
+                html += '<td>' + escapeHtml(exam.course_name) + '</td>';
+                html += '<td>' + escapeHtml(exam.exam_type) + '</td>';
+                html += '<td>' + formatDateTime(exam.exam_date) + '</td>';
+                html += '<td>' + exam.duration_minutes + ' min</td>';
+                html += '<td>' + (exam.room ? escapeHtml(exam.room.building + ' - ' + exam.room.room_number) : 'TBA') + '</td>';
+                html += '<td>' + exam.total_marks + '</td>';
+                html += '<td>';
+                html += '<a href="view.html?id=' + exam.id + '" class="btn btn-sm btn-outline-primary" title="View">';
+                html += '<i class="bi bi-eye"></i></a> ';
+                
+                const user = getCurrentUser();
+                if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                    html += '<a href="edit.html?id=' + exam.id + '" class="btn btn-sm btn-outline-secondary" title="Edit">';
+                    html += '<i class="bi bi-pencil"></i></a>';
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            $('#exams-table-container').html(html);
+        }
+        
+        function renderPagination(data) {
+            if (!data.count || data.count <= CONFIG.DEFAULT_PAGE_SIZE) {
+                $('#pagination-container').html('');
+                return;
+            }
+            
+            const totalPages = Math.ceil(data.count / CONFIG.DEFAULT_PAGE_SIZE);
+            let html = '<nav><ul class="pagination justify-content-center">';
+            
+            if (data.previous) {
+                html += '<li class="page-item"><a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a></li>';
+            } else {
+                html += '<li class="page-item disabled"><span class="page-link">Previous</span></li>';
+            }
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += '<li class="page-item active"><span class="page-link">' + i + '</span></li>';
+                } else {
+                    html += '<li class="page-item"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+                }
+            }
+            
+            if (data.next) {
+                html += '<li class="page-item"><a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a></li>';
+            } else {
+                html += '<li class="page-item disabled"><span class="page-link">Next</span></li>';
+            }
+            
+            html += '</ul></nav>';
+            $('#pagination-container').html(html);
+            
+            $('#pagination-container .page-link[data-page]').on('click', function(e) {
+                e.preventDefault();
+                currentPage = parseInt($(this).data('page'));
+                loadExams();
+                window.scrollTo(0, 0);
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Statistics - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Grade Statistics</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <label for="class-select" class="form-label">Select Class</label>
+                            <select class="form-select" id="class-select">
+                                <option value="">Select a class...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="statistics-container">
+                <div class="text-center py-5">
+                    <p class="text-muted">Select a class to view statistics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (!requireAuth()) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Load classes
+            ClassAPI.list({ status: 'OPEN' })
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const select = $('#class-select');
+                        response.data.results.forEach(function(cls) {
+                            select.append('<option value="' + cls.id + '">' + 
+                                escapeHtml(cls.class_code) + ' - ' + escapeHtml(cls.course_name) + '</option>');
+                        });
+                    }
+                });
+            
+            $('#class-select').on('change', function() {
+                const classId = $(this).val();
+                if (classId) {
+                    loadStatistics(classId);
+                } else {
+                    $('#statistics-container').html('<div class="text-center py-5"><p class="text-muted">Select a class to view statistics</p></div>');
+                }
+            });
+        });
+        
+        function loadStatistics(classId) {
+            showLoading('#statistics-container');
+            
+            GradeAPI.getClassStatistics(classId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderStatistics(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#statistics-container').html('<div class="alert alert-danger">Failed to load statistics</div>');
+                    console.error(error);
+                });
+        }
+        
+        function renderStatistics(data) {
+            const stats = data.statistics;
+            const gradeDist = stats.grade_distribution;
+            
+            let html = '<div class="row mb-4">';
+            html += '<div class="col-md-4"><div class="card"><div class="card-body text-center">';
+            html += '<h3>' + stats.total_students + '</h3><p class="text-muted">Total Students</p>';
+            html += '</div></div></div>';
+            html += '<div class="col-md-4"><div class="card"><div class="card-body text-center">';
+            html += '<h3>' + formatGPA(stats.average_grade) + '</h3><p class="text-muted">Average Grade</p>';
+            html += '</div></div></div>';
+            html += '<div class="col-md-4"><div class="card"><div class="card-body text-center">';
+            html += '<h3>' + formatGPA(stats.median_grade) + '</h3><p class="text-muted">Median Grade</p>';
+            html += '</div></div></div>';
+            html += '</div>';
+            
+            html += '<div class="card"><div class="card-header"><h5>Grade Distribution</h5></div><div class="card-body">';
+            html += '<div class="table-responsive"><table class="table"><thead><tr>';
+            html += '<th>Grade</th><th>Count</th><th>Percentage</th>';
+            html += '</tr></thead><tbody>';
+            
+            const grades = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
+            grades.forEach(function(grade) {
+                const count = gradeDist[grade] || 0;
+                const percentage = stats.total_students > 0 ? (count / stats.total_students * 100).toFixed(1) : 0;
+                html += '<tr>';
+                html += '<td>' + grade + '</td>';
+                html += '<td>' + count + '</td>';
+                html += '<td>' + percentage + '%</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div></div></div>';
+            
+            $('#statistics-container').html(html);
+        }
+    </script>
+</body>
+</html>
+

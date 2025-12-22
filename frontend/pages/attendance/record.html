@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Attendance - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Record Attendance</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="record-attendance-form">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="enrollment" class="form-label">Enrollment <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="enrollment" required>
+                                            <option value="">Select enrollment...</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="date" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="status" required>
+                                            <option value="">Select...</option>
+                                            <option value="PRESENT">Present</option>
+                                            <option value="ABSENT">Absent</option>
+                                            <option value="LATE">Late</option>
+                                            <option value="EXCUSED">Excused</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="notes" class="form-label">Notes</label>
+                                        <textarea class="form-control" id="notes" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="list.html" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                                        <i class="bi bi-check-circle"></i> Record Attendance
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (!requireRole([CONFIG.ROLES.ADMIN, CONFIG.ROLES.INSTRUCTOR])) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Set today's date as default
+            $('#date').val(new Date().toISOString().split('T')[0]);
+            
+            // Load enrollments
+            EnrollmentAPI.list({ status: 'ENROLLED' })
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const select = $('#enrollment');
+                        response.data.results.forEach(function(enrollment) {
+                            select.append('<option value="' + enrollment.id + '">' + 
+                                escapeHtml(enrollment.student_name) + ' - ' + escapeHtml(enrollment.class_code) + '</option>');
+                        });
+                    }
+                });
+            
+            $('#record-attendance-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                const formData = {
+                    enrollment: $('#enrollment').val(),
+                    date: $('#date').val(),
+                    status: $('#status').val(),
+                    notes: $('#notes').val().trim() || null
+                };
+                
+                const submitBtn = $('#submit-btn');
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Recording...');
+                
+                AttendanceAPI.create(formData)
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            showToast('Attendance recorded successfully!', 'success');
+                            setTimeout(function() {
+                                window.location.href = 'list.html';
+                            }, 1500);
+                        }
+                    })
+                    .catch(function(xhr) {
+                        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.message) {
+                            showToast(xhr.responseJSON.message, 'error');
+                        } else {
+                            showToast('Failed to record attendance. Please try again.', 'error');
+                        }
+                    })
+                    .finally(function() {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="bi bi-check-circle"></i> Record Attendance');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
+

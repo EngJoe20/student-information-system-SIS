@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Course - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Edit Course</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div id="loading-container" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <div id="edit-form-container" style="display: none;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="edit-course-form">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="course_code" class="form-label">Course Code</label>
+                                            <input type="text" class="form-control" id="course_code" readonly>
+                                            <small class="text-muted">Course code cannot be changed</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="course_name" class="form-label">Course Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="course_name" required>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label for="description" class="form-label">Description</label>
+                                            <textarea class="form-control" id="description" rows="3"></textarea>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="credits" class="form-label">Credits <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="credits" min="1" max="6" required>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="department" required>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="is_active" class="form-label">Status</label>
+                                            <select class="form-select" id="is_active">
+                                                <option value="true">Active</option>
+                                                <option value="false">Inactive</option>
+                                            </select>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label for="prerequisite_ids" class="form-label">Prerequisites</label>
+                                            <select class="form-select" id="prerequisite_ids" multiple>
+                                                <option value="">Loading...</option>
+                                            </select>
+                                            <small class="text-muted">Hold Ctrl/Cmd to select multiple prerequisites</small>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="list.html" class="btn btn-secondary">Cancel</a>
+                                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                                            <i class="bi bi-check-circle"></i> Update Course
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let courseId = null;
+        
+        $(document).ready(function() {
+            if (!requireRole(CONFIG.ROLES.ADMIN)) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            courseId = urlParams.get('id');
+            
+            if (!courseId) {
+                showToast('Course ID is required', 'error');
+                setTimeout(() => window.location.href = 'list.html', 2000);
+                return;
+            }
+            
+            // Load courses for prerequisites
+            CourseAPI.list({ is_active: true })
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const select = $('#prerequisite_ids');
+                        select.html('<option value="">None</option>');
+                        response.data.results.forEach(function(course) {
+                            if (course.id !== courseId) {
+                                select.append('<option value="' + course.id + '">' + 
+                                    escapeHtml(course.course_code) + ' - ' + escapeHtml(course.course_name) + '</option>');
+                            }
+                        });
+                    }
+                });
+            
+            loadCourseData();
+            
+            $('#edit-course-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                const prerequisiteIds = Array.from($('#prerequisite_ids').val() || []);
+                
+                const formData = {
+                    course_name: $('#course_name').val().trim(),
+                    description: $('#description').val().trim() || null,
+                    credits: parseInt($('#credits').val()),
+                    department: $('#department').val().trim(),
+                    prerequisite_ids: prerequisiteIds,
+                    is_active: $('#is_active').val() === 'true'
+                };
+                
+                const submitBtn = $('#submit-btn');
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+                
+                CourseAPI.update(courseId, formData)
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            showToast('Course updated successfully!', 'success');
+                            setTimeout(function() {
+                                window.location.href = 'view.html?id=' + courseId;
+                            }, 1500);
+                        }
+                    })
+                    .catch(function(xhr) {
+                        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            for (const field in errors) {
+                                const fieldId = field.replace(/\./g, '_');
+                                const input = $('#' + fieldId);
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    input.siblings('.invalid-feedback').text(errors[field][0]);
+                                }
+                            }
+                            showToast('Please fix the validation errors', 'error');
+                        } else {
+                            showToast('Failed to update course. Please try again.', 'error');
+                        }
+                    })
+                    .finally(function() {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="bi bi-check-circle"></i> Update Course');
+                    });
+            });
+        });
+        
+        function loadCourseData() {
+            CourseAPI.get(courseId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const course = response.data;
+                        $('#course_code').val(course.course_code);
+                        $('#course_name').val(course.course_name);
+                        $('#description').val(course.description || '');
+                        $('#credits').val(course.credits);
+                        $('#department').val(course.department || '');
+                        $('#is_active').val(course.is_active ? 'true' : 'false');
+                        
+                        // Set prerequisites
+                        if (course.prerequisites && course.prerequisites.length > 0) {
+                            const prereqIds = course.prerequisites.map(p => p.id);
+                            $('#prerequisite_ids').val(prereqIds);
+                        }
+                        
+                        $('#loading-container').hide();
+                        $('#edit-form-container').show();
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to load course data', 'error');
+                    console.error(error);
+                });
+        }
+    </script>
+</body>
+</html>
+

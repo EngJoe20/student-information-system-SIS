@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Grade - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Submit Grade</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="submit-grade-form">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="enrollment" class="form-label">Enrollment <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="enrollment" required>
+                                            <option value="">Select enrollment...</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="exam" class="form-label">Exam/Assignment <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="exam" required>
+                                            <option value="">Select exam...</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="assignment_name" class="form-label">Assignment Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="assignment_name" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="total_marks" class="form-label">Total Marks <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="total_marks" step="0.01" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="marks_obtained" class="form-label">Marks Obtained <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="marks_obtained" step="0.01" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="weight_percentage" class="form-label">Weight % <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="weight_percentage" step="0.01" min="0" max="100" required>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="percentage" class="form-label">Percentage</label>
+                                        <input type="number" class="form-control" id="percentage" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="comments" class="form-label">Comments</label>
+                                        <textarea class="form-control" id="comments" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="list.html" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                                        <i class="bi bi-check-circle"></i> Submit Grade
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (!requireRole([CONFIG.ROLES.ADMIN, CONFIG.ROLES.INSTRUCTOR])) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            let allExams = [];
+            
+            // Load enrollments
+            EnrollmentAPI.list({ status: 'ENROLLED' })
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const select = $('#enrollment');
+                        response.data.results.forEach(function(enrollment) {
+                            select.append('<option value="' + enrollment.id + '" data-class-id="' + enrollment.class_instance_id + '">' + 
+                                escapeHtml(enrollment.student_name) + ' - ' + escapeHtml(enrollment.class_code) + '</option>');
+                        });
+                    }
+                });
+            
+            // Load all exams (with pagination)
+            function loadAllExams(page = 1) {
+                ExamAPI.list({ page: page })
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            allExams = allExams.concat(response.data.results);
+                            
+                            if (response.data.next) {
+                                loadAllExams(page + 1);
+                            } else {
+                                // All exams loaded
+                                updateExamDropdown();
+                            }
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Failed to load exams:', error);
+                    });
+            }
+            
+            function updateExamDropdown() {
+                const select = $('#exam');
+                const selectedEnrollment = $('#enrollment').val();
+                const selectedClassId = $('#enrollment option:selected').data('class-id');
+                
+                // Clear existing options except the first one
+                select.find('option:not(:first)').remove();
+                
+                // Filter exams by selected enrollment's class
+                if (selectedClassId) {
+                    allExams.forEach(function(exam) {
+                        if (exam.class_instance === selectedClassId) {
+                            select.append('<option value="' + exam.id + '">' + 
+                                escapeHtml(exam.exam_type) + ' - ' + escapeHtml(exam.class_code) + '</option>');
+                        }
+                    });
+                } else {
+                    // Show all exams if no enrollment selected
+                    allExams.forEach(function(exam) {
+                        select.append('<option value="' + exam.id + '">' + 
+                            escapeHtml(exam.exam_type) + ' - ' + escapeHtml(exam.class_code) + '</option>');
+                    });
+                }
+            }
+            
+            // Load all exams initially
+            loadAllExams();
+            
+            // Update exam dropdown when enrollment changes
+            $('#enrollment').on('change', function() {
+                updateExamDropdown();
+            });
+            
+            // Calculate percentage
+            $('#marks_obtained, #total_marks').on('input', function() {
+                const marks = parseFloat($('#marks_obtained').val()) || 0;
+                const total = parseFloat($('#total_marks').val()) || 0;
+                if (total > 0) {
+                    const percentage = (marks / total) * 100;
+                    $('#percentage').val(percentage.toFixed(2));
+                }
+            });
+            
+            $('#submit-grade-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                const formData = {
+                    enrollment: $('#enrollment').val(),
+                    exam: $('#exam').val(),
+                    assignment_name: $('#assignment_name').val().trim(),
+                    marks_obtained: parseFloat($('#marks_obtained').val()),
+                    total_marks: parseFloat($('#total_marks').val()),
+                    weight_percentage: parseFloat($('#weight_percentage').val()),
+                    comments: $('#comments').val().trim() || null
+                };
+                
+                const submitBtn = $('#submit-btn');
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Submitting...');
+                
+                GradeAPI.create(formData)
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            showToast('Grade submitted successfully!', 'success');
+                            setTimeout(function() {
+                                window.location.href = 'list.html';
+                            }, 1500);
+                        }
+                    })
+                    .catch(function(xhr) {
+                        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            for (const field in errors) {
+                                const fieldId = field.replace(/\./g, '_');
+                                const input = $('#' + fieldId);
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    input.siblings('.invalid-feedback').text(errors[field][0]);
+                                }
+                            }
+                            showToast('Please fix the validation errors', 'error');
+                        } else {
+                            showToast('Failed to submit grade. Please try again.', 'error');
+                        }
+                    })
+                    .finally(function() {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="bi bi-check-circle"></i> Submit Grade');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
+

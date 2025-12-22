@@ -35,19 +35,50 @@ function setAuthData(accessToken, refreshToken, user) {
 }
 
 /**
+ * Get stored temp token (for 2FA flow)
+ */
+function getTempToken() {
+    return localStorage.getItem(CONFIG.TEMP_TOKEN_KEY);
+}
+
+/**
+ * Store temp token (for 2FA flow)
+ */
+function setTempToken(tempToken) {
+    localStorage.setItem(CONFIG.TEMP_TOKEN_KEY, tempToken);
+}
+
+/**
  * Clear authentication data
  */
 function clearAuthData() {
     localStorage.removeItem(CONFIG.TOKEN_KEY);
     localStorage.removeItem(CONFIG.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(CONFIG.TEMP_TOKEN_KEY);
     localStorage.removeItem(CONFIG.USER_KEY);
 }
 
 /**
- * Check if user is authenticated
+ * Check if user is authenticated (has valid JWT tokens)
+ * Returns false if only temp token exists (2FA not completed)
  */
 function isAuthenticated() {
-    return getAccessToken() !== null;
+    const accessToken = getAccessToken();
+    const tempToken = getTempToken();
+    
+    // If we have a temp token but no access token, 2FA is not completed
+    if (tempToken && !accessToken) {
+        return false;
+    }
+    
+    return accessToken !== null;
+}
+
+/**
+ * Check if user is in 2FA flow (has temp token but no access token)
+ */
+function isIn2FAFlow() {
+    return getTempToken() !== null && getAccessToken() === null;
 }
 
 /**
@@ -64,7 +95,7 @@ function getAuthHeader() {
 function refreshAccessToken() {
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
-        return Promise.reject('No refresh token available');
+        return Promise.reject(new Error('No refresh token available'));
     }
     
     return $.ajax({
@@ -74,38 +105,68 @@ function refreshAccessToken() {
         data: JSON.stringify({ refresh_token: refreshToken }),
         success: function(response) {
             if (response.status === 'success' && response.data.access_token) {
+                // Update access token, keep refresh token and user data
                 localStorage.setItem(CONFIG.TOKEN_KEY, response.data.access_token);
+                if (response.data.refresh_token) {
+                    localStorage.setItem(CONFIG.REFRESH_TOKEN_KEY, response.data.refresh_token);
+                }
                 return response.data.access_token;
             }
             throw new Error('Failed to refresh token');
         },
-        error: function() {
+        error: function(xhr) {
+            // Refresh token is invalid or expired
             clearAuthData();
-            window.location.href = CONFIG.ROUTES.LOGIN;
-            throw new Error('Token refresh failed');
+            const response = xhr.responseJSON;
+            const errorMsg = response?.message || 'Session expired. Please login again.';
+            
+            // Don't redirect immediately if we're on login page
+            if (!window.location.pathname.includes('login.html')) {
+                showToast(errorMsg, 'error');
+                setTimeout(() => {
+                    window.location.href = CONFIG.ROUTES.LOGIN;
+                }, 2000);
+            }
+            throw new Error(errorMsg);
         }
     });
 }
 
 /**
  * Handle API error responses
+ * Note: This should NOT be called for 2FA-related endpoints during login flow
  */
 function handleApiError(xhr) {
+    // Don't handle errors on login/2FA pages - let them handle their own errors
+    if (window.location.pathname.includes('login.html')) {
+        return;
+    }
+    
     if (xhr.status === 401) {
-        // Try to refresh token
-        refreshAccessToken()
-            .then(() => {
-                // Retry the original request
-                showToast('Session refreshed. Please try again.', 'info');
-            })
-            .catch(() => {
-                // Refresh failed, redirect to login
-                clearAuthData();
-                showToast('Session expired. Please login again.', 'error');
-                setTimeout(() => {
-                    window.location.href = CONFIG.ROUTES.LOGIN;
-                }, 2000);
-            });
+        // Unauthorized - try to refresh token
+        // Only attempt refresh if we have a refresh token and are not in 2FA flow
+        if (getRefreshToken() && !isIn2FAFlow()) {
+            refreshAccessToken()
+                .then(() => {
+                    // Token refreshed - user can retry the action
+                    showToast('Session refreshed. Please try again.', 'info');
+                })
+                .catch(() => {
+                    // Refresh failed, redirect to login
+                    clearAuthData();
+                    showToast('Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        window.location.href = CONFIG.ROUTES.LOGIN;
+                    }, 2000);
+                });
+        } else {
+            // No refresh token or in 2FA flow - redirect to login
+            clearAuthData();
+            showToast('Authentication required. Please login.', 'error');
+            setTimeout(() => {
+                window.location.href = CONFIG.ROUTES.LOGIN;
+            }, 2000);
+        }
     } else if (xhr.status === 403) {
         showToast('You do not have permission to perform this action.', 'error');
     } else if (xhr.status === 400) {
@@ -118,7 +179,7 @@ function handleApiError(xhr) {
             }
             showToast(errorMsg, 'error');
         } else {
-            showToast(response.message || 'Invalid request', 'error');
+            showToast(response?.message || 'Invalid request', 'error');
         }
     } else if (xhr.status === 404) {
         showToast('Resource not found', 'error');
@@ -139,7 +200,33 @@ function login(username, password) {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ username, password }),
+        statusCode: {
+            200: function(response) {
+                // Normal login success
+                if (response.status === 'success') {
+                    setAuthData(
+                        response.data.access_token,
+                        response.data.refresh_token,
+                        response.data.user
+                    );
+                    return response;
+                }
+                throw new Error(response.message || 'Login failed');
+            },
+            202: function(response) {
+                // 2FA required - HTTP 202 Accepted
+                if (response.status === '2fa_required') {
+                    // Store temp token for 2FA verification
+                    if (response.temp_token) {
+                        setTempToken(response.temp_token);
+                    }
+                    return response;
+                }
+                throw new Error(response.message || '2FA required but temp token missing');
+            }
+        },
         success: function(response) {
+            // Fallback for any 2xx status
             if (response.status === 'success') {
                 setAuthData(
                     response.data.access_token,
@@ -148,12 +235,20 @@ function login(username, password) {
                 );
                 return response;
             } else if (response.status === '2fa_required') {
-                // Handle 2FA requirement
+                if (response.temp_token) {
+                    setTempToken(response.temp_token);
+                }
                 return response;
             }
             throw new Error(response.message || 'Login failed');
         },
         error: function(xhr) {
+            // Handle non-2xx responses
+            const response = xhr.responseJSON;
+            if (xhr.status === 400 || xhr.status === 401) {
+                // Invalid credentials
+                throw new Error(response?.message || 'Invalid username or password');
+            }
             handleApiError(xhr);
             throw new Error('Login failed');
         }
@@ -164,13 +259,22 @@ function login(username, password) {
  * Verify 2FA
  */
 function verify2FA(tempToken, otpCode) {
+    // Use temp token from parameter or localStorage
+    const token = tempToken || getTempToken();
+    
+    if (!token) {
+        return Promise.reject(new Error('No temporary token found. Please login again.'));
+    }
+    
     return $.ajax({
         url: CONFIG.API_BASE_URL + '/auth/verify-2fa/',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ temp_token: tempToken, otp_code: otpCode }),
+        data: JSON.stringify({ temp_token: token, otp_code: otpCode }),
         success: function(response) {
             if (response.status === 'success') {
+                // Clear temp token and store JWT tokens
+                localStorage.removeItem(CONFIG.TEMP_TOKEN_KEY);
                 setAuthData(
                     response.data.access_token,
                     response.data.refresh_token,
@@ -181,6 +285,21 @@ function verify2FA(tempToken, otpCode) {
             throw new Error(response.message || '2FA verification failed');
         },
         error: function(xhr) {
+            const response = xhr.responseJSON;
+            
+            // Handle specific error cases
+            if (xhr.status === 400) {
+                if (response?.code === 'INVALID_TOKEN' || response?.message?.includes('expired')) {
+                    // Temp token expired - clear it and redirect to login
+                    clearAuthData();
+                    throw new Error('Temporary token expired. Please login again.');
+                } else if (response?.code === 'INVALID_OTP' || response?.message?.includes('OTP')) {
+                    // Invalid OTP code
+                    throw new Error('Invalid OTP code. Please try again.');
+                }
+                throw new Error(response?.message || 'Invalid request');
+            }
+            
             handleApiError(xhr);
             throw new Error('2FA verification failed');
         }
@@ -193,6 +312,10 @@ function verify2FA(tempToken, otpCode) {
 function logout() {
     const refreshToken = getRefreshToken();
     
+    // Always clear local data first
+    clearAuthData();
+    
+    // Try to invalidate refresh token on server (non-blocking)
     if (refreshToken) {
         $.ajax({
             url: CONFIG.API_BASE_URL + '/auth/logout/',
@@ -200,15 +323,20 @@ function logout() {
             contentType: 'application/json',
             headers: getAuthHeader(),
             data: JSON.stringify({ refresh_token: refreshToken }),
+            timeout: 3000, // 3 second timeout
             error: function() {
                 // Continue with logout even if API call fails
-                console.error('Logout API call failed');
+                console.error('Logout API call failed (non-critical)');
+            },
+            complete: function() {
+                // Redirect after attempting server logout
+                window.location.href = CONFIG.ROUTES.LOGIN;
             }
         });
+    } else {
+        // No refresh token, just redirect
+        window.location.href = CONFIG.ROUTES.LOGIN;
     }
-    
-    clearAuthData();
-    window.location.href = CONFIG.ROUTES.LOGIN;
 }
 
 /**
@@ -257,6 +385,14 @@ function confirmPasswordReset(token, newPassword, confirmPassword) {
  * Check authentication and redirect if needed
  */
 function requireAuth() {
+    // If user has temp token but no access token, they're in 2FA flow
+    if (isIn2FAFlow()) {
+        // Redirect to login to complete 2FA
+        showToast('Please complete 2FA verification', 'info');
+        window.location.href = CONFIG.ROUTES.LOGIN;
+        return false;
+    }
+    
     if (!isAuthenticated()) {
         window.location.href = CONFIG.ROUTES.LOGIN;
         return false;

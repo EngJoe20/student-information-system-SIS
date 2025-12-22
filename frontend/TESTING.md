@@ -3,6 +3,7 @@
 ## Prerequisites
 
 1. **Django Backend Running**
+
    - Backend should be running on `http://localhost:8000`
    - Database should be migrated and seeded with test data
    - CORS should be configured to allow frontend origin
@@ -75,7 +76,7 @@ Edit `sis_backend/settings/base.py`:
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",  # Frontend URL
     "http://127.0.0.1:8080",
-    "http://localhost:3000",  # Alternative port
+    "http://localhost:8080",  # Alternative port
 ]
 ```
 
@@ -85,8 +86,8 @@ If your backend is not on `localhost:8000`, edit `frontend/assets/js/config.js`:
 
 ```javascript
 const CONFIG = {
-    API_BASE_URL: 'http://your-backend-url:8000/api/v1',
-    // ...
+  API_BASE_URL: "http://your-backend-url:8000/api/v1",
+  // ...
 };
 ```
 
@@ -242,10 +243,12 @@ const CONFIG = {
 Open Browser DevTools Console (F12) and check for:
 
 1. **No JavaScript Errors**:
+
    - Should see no red error messages
    - Check for any warnings
 
 2. **API Calls**:
+
    - Go to Network tab
    - Verify API calls are made correctly
    - Check request headers include `Authorization: Bearer <token>`
@@ -279,15 +282,18 @@ python scripts/generate_test_data.py
 ### Manual Test Data Creation
 
 1. **Create Student**:
+
    - Login as Admin/Registrar
    - Navigate to Students > Add Student
    - Fill form and submit
 
 2. **Create Course**:
+
    - Navigate to Courses > Create Course
    - Fill form and submit
 
 3. **Create Class**:
+
    - Navigate to Classes > Create Class
    - Assign instructor, set schedule
 
@@ -302,6 +308,7 @@ python scripts/generate_test_data.py
 **Error**: `Access to XMLHttpRequest blocked by CORS policy`
 
 **Solution**:
+
 1. Check `CORS_ALLOWED_ORIGINS` in Django settings
 2. Ensure frontend URL matches exactly (including port)
 3. Restart Django server after changing CORS settings
@@ -311,6 +318,7 @@ python scripts/generate_test_data.py
 **Error**: `401 Unauthorized` on API calls
 
 **Solutions**:
+
 1. Check if token exists: `localStorage.getItem('sis_access_token')`
 2. Verify token is included in request headers
 3. Check if token is expired (default: 1 hour)
@@ -321,6 +329,7 @@ python scripts/generate_test_data.py
 **Error**: `403 Forbidden` on API calls
 
 **Solution**:
+
 1. Verify user has correct role
 2. Check backend permissions
 3. Ensure user is assigned proper role in database
@@ -328,6 +337,7 @@ python scripts/generate_test_data.py
 ### Issue: API Calls Not Working
 
 **Check**:
+
 1. Backend is running: `http://localhost:8000/api/v1/`
 2. API base URL in `config.js` is correct
 3. Network tab shows API calls being made
@@ -336,6 +346,7 @@ python scripts/generate_test_data.py
 ### Issue: Pages Not Loading
 
 **Check**:
+
 1. File paths are correct (relative paths)
 2. All JavaScript files are loaded (check Network tab)
 3. No 404 errors for CSS/JS files
@@ -344,6 +355,7 @@ python scripts/generate_test_data.py
 ### Issue: Sidebar/Navbar Not Loading
 
 **Check**:
+
 1. jQuery `.load()` function is working
 2. Component files exist in `components/` folder
 3. Paths are correct (relative to page location)
@@ -352,6 +364,7 @@ python scripts/generate_test_data.py
 ## Testing Checklist
 
 ### Authentication
+
 - [ ] Login with valid credentials
 - [ ] Login with invalid credentials (shows error)
 - [ ] 2FA flow works (if enabled)
@@ -361,6 +374,7 @@ python scripts/generate_test_data.py
 - [ ] Protected pages redirect to login when not authenticated
 
 ### Student Role
+
 - [ ] Student dashboard loads
 - [ ] Can view own profile
 - [ ] Can view own enrollments
@@ -370,6 +384,7 @@ python scripts/generate_test_data.py
 - [ ] Cannot access admin pages
 
 ### Admin Role
+
 - [ ] Admin dashboard loads
 - [ ] Can view all students
 - [ ] Can create/edit students
@@ -379,6 +394,7 @@ python scripts/generate_test_data.py
 - [ ] All pages accessible
 
 ### Instructor Role
+
 - [ ] Instructor dashboard loads
 - [ ] Can view assigned classes
 - [ ] Can record attendance
@@ -386,6 +402,7 @@ python scripts/generate_test_data.py
 - [ ] Cannot access student management
 
 ### UI/UX
+
 - [ ] Responsive on mobile
 - [ ] Responsive on tablet
 - [ ] Responsive on desktop
@@ -396,6 +413,7 @@ python scripts/generate_test_data.py
 - [ ] Search/filter works
 
 ### API Integration
+
 - [ ] All API calls include auth token
 - [ ] Error handling works (401, 403, 400, 500)
 - [ ] Token refresh works
@@ -429,6 +447,7 @@ For automated testing, consider:
 ## Browser Compatibility
 
 Test in:
+
 - [ ] Chrome (latest)
 - [ ] Firefox (latest)
 - [ ] Safari (latest)
@@ -451,42 +470,43 @@ Save this as `test-frontend.html` in frontend root:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Frontend Test Page</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Frontend Connection Test</h1>
     <button onclick="testConnection()">Test API Connection</button>
     <div id="result"></div>
-    
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="assets/js/config.js"></script>
     <script>
-        function testConnection() {
-            $.ajax({
-                url: CONFIG.API_BASE_URL + '/auth/login/',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({username: 'test', password: 'test'}),
-                success: function(response) {
-                    document.getElementById('result').innerHTML = 
-                        '<p style="color: green;">✓ API is reachable!</p>';
-                },
-                error: function(xhr) {
-                    if (xhr.status === 400 || xhr.status === 401) {
-                        document.getElementById('result').innerHTML = 
-                            '<p style="color: green;">✓ API is reachable! (Expected auth error)</p>';
-                    } else {
-                        document.getElementById('result').innerHTML = 
-                            '<p style="color: red;">✗ API connection failed: ' + xhr.status + '</p>';
-                    }
-                }
-            });
-        }
+      function testConnection() {
+        $.ajax({
+          url: CONFIG.API_BASE_URL + "/auth/login/",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ username: "test", password: "test" }),
+          success: function (response) {
+            document.getElementById("result").innerHTML =
+              '<p style="color: green;">✓ API is reachable!</p>';
+          },
+          error: function (xhr) {
+            if (xhr.status === 400 || xhr.status === 401) {
+              document.getElementById("result").innerHTML =
+                '<p style="color: green;">✓ API is reachable! (Expected auth error)</p>';
+            } else {
+              document.getElementById("result").innerHTML =
+                '<p style="color: red;">✗ API connection failed: ' +
+                xhr.status +
+                "</p>";
+            }
+          },
+        });
+      }
     </script>
-</body>
+  </body>
 </html>
 ```
 
 Open this file to quickly test if frontend can reach the backend API.
-

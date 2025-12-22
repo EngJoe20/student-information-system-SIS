@@ -125,6 +125,17 @@
                 return;
             }
             
+            // Check if user is in 2FA flow (has temp token)
+            const tempToken = getTempToken();
+            if (tempToken) {
+                // Show 2FA form and restore temp token
+                $('#login-form').hide();
+                $('#2fa-form').show();
+                $('#temp-token').val(tempToken);
+                $('#otp-code').focus();
+                showToast('Please complete 2FA verification', 'info');
+            }
+            
             // Toggle password visibility
             $('#toggle-password').on('click', function() {
                 const passwordInput = $('#password');
@@ -161,7 +172,9 @@
                             // Show 2FA form
                             $('#login-form').hide();
                             $('#2fa-form').show();
-                            $('#temp-token').val(response.temp_token);
+                            const tempToken = response.temp_token;
+                            $('#temp-token').val(tempToken);
+                            // Temp token is already stored in localStorage by login() function
                             $('#otp-code').focus();
                             showToast('Please enter your 2FA code', 'info');
                         } else if (response.status === 'success') {
@@ -211,8 +224,21 @@
                         }
                     })
                     .catch(function(error) {
-                        showToast('Invalid OTP code. Please try again.', 'error');
-                        $('#otp-code').val('').focus();
+                        // Show specific error message
+                        const errorMsg = error.message || 'Invalid OTP code. Please try again.';
+                        showToast(errorMsg, 'error');
+                        
+                        // If token expired, clear form and show login
+                        if (errorMsg.includes('expired') || errorMsg.includes('login again')) {
+                            localStorage.removeItem(CONFIG.TEMP_TOKEN_KEY);
+                            $('#2fa-form').hide();
+                            $('#login-form').show();
+                            $('#otp-code').val('');
+                            $('#temp-token').val('');
+                            $('#username').focus();
+                        } else {
+                            $('#otp-code').val('').focus();
+                        }
                     })
                     .finally(function() {
                         verifyBtn.prop('disabled', false);
@@ -222,10 +248,13 @@
             
             // Back to login button
             $('#back-to-login').on('click', function() {
+                // Clear temp token when going back
+                localStorage.removeItem(CONFIG.TEMP_TOKEN_KEY);
                 $('#2fa-form').hide();
                 $('#login-form').show();
                 $('#otp-code').val('');
                 $('#temp-token').val('');
+                $('#username').focus();
             });
             
             // Forgot password link

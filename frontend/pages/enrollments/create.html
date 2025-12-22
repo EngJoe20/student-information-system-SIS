@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Enrollment - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Create Enrollment</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="create-enrollment-form">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="student" class="form-label">Student <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="student" required>
+                                            <option value="">Select student...</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="class_instance" class="form-label">Class <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="class_instance" required>
+                                            <option value="">Select class...</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="list.html" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                                        <i class="bi bi-check-circle"></i> Create Enrollment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (!requireAuth()) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            const user = getCurrentUser();
+            
+            // Load students (only for Admin/Registrar)
+            if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
+                StudentAPI.list({ academic_status: 'ACTIVE' })
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            const select = $('#student');
+                            response.data.results.forEach(function(student) {
+                                select.append('<option value="' + student.id + '">' + 
+                                    escapeHtml(student.student_id) + ' - ' + escapeHtml(student.full_name) + '</option>');
+                            });
+                        }
+                    });
+            } else {
+                // Student can only enroll themselves
+                $('#student').prop('disabled', true);
+                StudentAPI.list({ search: user.username })
+                    .then(function(response) {
+                        if (response.status === 'success' && response.data.results.length > 0) {
+                            const student = response.data.results[0];
+                            $('#student').append('<option value="' + student.id + '" selected>' + 
+                                escapeHtml(student.student_id) + ' - ' + escapeHtml(student.full_name) + '</option>');
+                        }
+                    });
+            }
+            
+            // Load classes
+            ClassAPI.list({ status: 'OPEN' })
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const select = $('#class_instance');
+                        response.data.results.forEach(function(cls) {
+                            select.append('<option value="' + cls.id + '">' + 
+                                escapeHtml(cls.class_code) + ' - ' + escapeHtml(cls.course_name) + 
+                                ' (' + cls.current_enrollment + '/' + cls.max_capacity + ')' + '</option>');
+                        });
+                    }
+                });
+            
+            $('#create-enrollment-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                const formData = {
+                    student: $('#student').val(),
+                    class_instance: $('#class_instance').val()
+                };
+                
+                const submitBtn = $('#submit-btn');
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Creating...');
+                
+                EnrollmentAPI.create(formData)
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            showToast('Enrollment created successfully!', 'success');
+                            setTimeout(function() {
+                                window.location.href = 'list.html';
+                            }, 1500);
+                        }
+                    })
+                    .catch(function(xhr) {
+                        const response = xhr.responseJSON;
+                        
+                        if (xhr.status === 400 || xhr.status === 409) {
+                            // Handle specific enrollment validation errors
+                            let errorMsg = '';
+                            
+                            if (response?.code === 'PREREQUISITES_NOT_MET') {
+                                errorMsg = 'Prerequisites not met. Missing courses:\n';
+                                if (response.missing_prerequisites) {
+                                    response.missing_prerequisites.forEach(function(prereq) {
+                                        errorMsg += '- ' + prereq.course_code + ': ' + prereq.course_name + '\n';
+                                    });
+                                } else {
+                                    errorMsg += response.message || 'Required prerequisites have not been completed.';
+                                }
+                            } else if (response?.code === 'SCHEDULE_CONFLICT') {
+                                errorMsg = 'Schedule conflict: ' + (response.message || 'This class conflicts with another enrolled class.');
+                            } else if (response?.message) {
+                                errorMsg = response.message;
+                            } else if (response?.errors) {
+                                // Validation errors
+                                errorMsg = 'Validation errors:\n';
+                                for (const field in response.errors) {
+                                    errorMsg += field + ': ' + response.errors[field].join(', ') + '\n';
+                                }
+                            } else {
+                                errorMsg = 'Failed to create enrollment. Please check the class availability and prerequisites.';
+                            }
+                            
+                            showToast(errorMsg, 'error');
+                        } else if (xhr.status === 403) {
+                            showToast(response?.message || 'You do not have permission to create this enrollment.', 'error');
+                        } else {
+                            showToast('Failed to create enrollment. Please try again.', 'error');
+                        }
+                    })
+                    .finally(function() {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="bi bi-check-circle"></i> Create Enrollment');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
+

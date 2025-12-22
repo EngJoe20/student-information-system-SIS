@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Edit User</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div id="loading-container" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <div id="edit-form-container" style="display: none;">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="edit-user-form">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="username" readonly>
+                                            <small class="text-muted">Username cannot be changed</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" readonly>
+                                            <small class="text-muted">Email cannot be changed</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="first_name" required>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="last_name" required>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="phone_number" class="form-label">Phone Number</label>
+                                            <input type="text" class="form-control" id="phone_number">
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="role" required>
+                                                <option value="">Select...</option>
+                                                <option value="ADMIN">Admin</option>
+                                                <option value="STUDENT">Student</option>
+                                                <option value="INSTRUCTOR">Instructor</option>
+                                                <option value="REGISTRAR">Registrar</option>
+                                            </select>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="is_active" class="form-label">Status</label>
+                                            <select class="form-select" id="is_active">
+                                                <option value="true">Active</option>
+                                                <option value="false">Inactive</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="list.html" class="btn btn-secondary">Cancel</a>
+                                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                                            <i class="bi bi-check-circle"></i> Update User
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        let userId = null;
+        
+        $(document).ready(function() {
+            if (!requireRole(CONFIG.ROLES.ADMIN)) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            userId = urlParams.get('id');
+            
+            if (!userId) {
+                showToast('User ID is required', 'error');
+                setTimeout(() => window.location.href = 'list.html', 2000);
+                return;
+            }
+            
+            loadUserData();
+            
+            $('#edit-user-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                const formData = {
+                    first_name: $('#first_name').val().trim(),
+                    last_name: $('#last_name').val().trim(),
+                    phone_number: $('#phone_number').val().trim() || null,
+                    role: $('#role').val(),
+                    is_active: $('#is_active').val() === 'true'
+                };
+                
+                const submitBtn = $('#submit-btn');
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+                
+                UserAPI.update(userId, formData)
+                    .then(function(response) {
+                        if (response.status === 'success') {
+                            showToast('User updated successfully!', 'success');
+                            setTimeout(function() {
+                                window.location.href = 'view.html?id=' + userId;
+                            }, 1500);
+                        }
+                    })
+                    .catch(function(xhr) {
+                        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            for (const field in errors) {
+                                const fieldId = field.replace(/\./g, '_');
+                                const input = $('#' + fieldId);
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    input.siblings('.invalid-feedback').text(errors[field][0]);
+                                }
+                            }
+                            showToast('Please fix the validation errors', 'error');
+                        } else {
+                            showToast('Failed to update user. Please try again.', 'error');
+                        }
+                    })
+                    .finally(function() {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="bi bi-check-circle"></i> Update User');
+                    });
+            });
+        });
+        
+        function loadUserData() {
+            UserAPI.get(userId)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        const user = response.data;
+                        $('#username').val(user.username);
+                        $('#email').val(user.email);
+                        $('#first_name').val(user.first_name);
+                        $('#last_name').val(user.last_name);
+                        $('#phone_number').val(user.phone_number || '');
+                        $('#role').val(user.role);
+                        $('#is_active').val(user.is_active ? 'true' : 'false');
+                        
+                        $('#loading-container').hide();
+                        $('#edit-form-container').show();
+                    }
+                })
+                .catch(function(error) {
+                    showToast('Failed to load user data', 'error');
+                    console.error(error);
+                });
+        }
+    </script>
+</body>
+</html>
+

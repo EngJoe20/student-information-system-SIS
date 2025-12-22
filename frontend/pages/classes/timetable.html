@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable - SIS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Class Timetable</h1>
+                <a href="list.html" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label for="semester-select" class="form-label">Semester</label>
+                    <select class="form-select" id="semester-select">
+                        <option value="FALL">Fall</option>
+                        <option value="SPRING">Spring</option>
+                        <option value="SUMMER">Summer</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="year-select" class="form-label">Academic Year</label>
+                    <input type="number" class="form-control" id="year-select" value="2024">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" id="load-timetable-btn">
+                        <i class="bi bi-search"></i> Load Timetable
+                    </button>
+                </div>
+            </div>
+            
+            <div id="timetable-container">
+                <div class="text-center py-5">
+                    <p class="text-muted">Select semester and year, then click Load Timetable</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    
+    <!-- Scripts -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (!requireAuth()) return;
+            
+            $('#navbar-container').load('../../components/navbar.html');
+            $('#sidebar-container').load('../../components/sidebar.html');
+            
+            // Set current year
+            $('#year-select').val(new Date().getFullYear());
+            
+            $('#load-timetable-btn').on('click', function() {
+                loadTimetable();
+            });
+        });
+        
+        function loadTimetable() {
+            const params = {
+                semester: $('#semester-select').val(),
+                academic_year: parseInt($('#year-select').val())
+            };
+            
+            showLoading('#timetable-container');
+            
+            ClassAPI.getTimetable(params)
+                .then(function(response) {
+                    if (response.status === 'success') {
+                        renderTimetable(response.data);
+                    }
+                })
+                .catch(function(error) {
+                    $('#timetable-container').html('<div class="alert alert-danger">Failed to load timetable</div>');
+                    console.error(error);
+                });
+        }
+        
+        function renderTimetable(data) {
+            const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+            
+            let html = '<div class="card"><div class="card-body">';
+            html += '<h5>' + data.semester + ' ' + data.academic_year + ' Timetable</h5>';
+            html += '<div class="table-responsive mt-3"><table class="table table-bordered">';
+            html += '<thead><tr><th>Time</th>';
+            
+            days.forEach(function(day) {
+                html += '<th>' + day + '</th>';
+            });
+            
+            html += '</tr></thead><tbody>';
+            
+            // Group time slots
+            const timeSlots = {};
+            if (data.schedule) {
+                data.schedule.forEach(function(daySchedule) {
+                    daySchedule.time_slots.forEach(function(slot) {
+                        const timeKey = slot.start_time + '-' + slot.end_time;
+                        if (!timeSlots[timeKey]) {
+                            timeSlots[timeKey] = {};
+                        }
+                        timeSlots[timeKey][daySchedule.day] = slot.class;
+                    });
+                });
+            }
+            
+            // Render timetable
+            Object.keys(timeSlots).sort().forEach(function(timeKey) {
+                html += '<tr>';
+                html += '<td><strong>' + timeKey + '</strong></td>';
+                
+                days.forEach(function(day) {
+                    const cls = timeSlots[timeKey][day];
+                    if (cls) {
+                        html += '<td>';
+                        html += '<a href="view.html?id=' + cls.id + '">' + escapeHtml(cls.class_code) + '</a><br>';
+                        html += '<small>' + escapeHtml(cls.course_name) + '</small><br>';
+                        html += '<small class="text-muted">' + escapeHtml(cls.instructor_name || 'TBA') + '</small>';
+                        html += '</td>';
+                    } else {
+                        html += '<td class="bg-light"></td>';
+                    }
+                });
+                
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div></div></div>';
+            $('#timetable-container').html(html);
+        }
+    </script>
+</body>
+</html>
+

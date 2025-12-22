@@ -10,6 +10,7 @@ const CONFIG = {
     // Token keys
     TOKEN_KEY: 'sis_access_token',
     REFRESH_TOKEN_KEY: 'sis_refresh_token',
+    TEMP_TOKEN_KEY: 'sis_temp_token',
     USER_KEY: 'sis_user',
     
     // Pagination

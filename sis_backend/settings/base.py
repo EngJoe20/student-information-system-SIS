@@ -219,7 +219,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = FILE_UPLOAD_MAX_MEMORY_SIZE
 
 # Application URLs
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8080')
 
 # Logging Configuration
 LOGGING = {
