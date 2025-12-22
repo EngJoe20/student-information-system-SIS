@@ -15,10 +15,10 @@ class StudentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = [
-            'user', 'student_id', 'date_of_birth', 'gender',
             'address', 'city', 'state', 'postal_code', 'country',
             'emergency_contact_name', 'emergency_contact_phone',
-            'enrollment_date'
+            'phone_number', 'academic_status', 'profile_picture',
+            'graduation_date'
         ]
     
     def create(self, validated_data):
