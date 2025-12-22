@@ -1,8 +1,8 @@
-# Student Information System (SIS) - Project Summary
+# AcademiaHub - Project Summary
 
 ## Project Overview
 
-The Student Information System (SIS) is a comprehensive Django REST Framework (DRF) based backend application designed to manage all aspects of academic administration. The system provides a robust API for managing students, courses, enrollments, attendance, grades, notifications, and administrative functions.
+**AcademiaHub** (formerly Student Information System) is a comprehensive Django REST Framework (DRF) based backend application designed to manage all aspects of academic administration. The system provides a robust API for managing students, courses, enrollments, attendance, grades, notifications, and administrative functions.
 
 **Technology Stack:**
 - **Backend Framework:** Django 5.0

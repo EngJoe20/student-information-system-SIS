@@ -1,4 +1,4 @@
-# SIS Frontend - Architecture Documentation
+# AcademiaHub Frontend - Architecture Documentation
 
 ## Frontend Architecture Design
 
