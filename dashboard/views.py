@@ -172,14 +172,14 @@ class DashboardViewSet(viewsets.GenericViewSet):
         current_semester_enrollments = Enrollment.objects.filter(
             student=student,
             status='ENROLLED',
-            class_obj__academic_year=datetime.now().year
-        ).select_related('class_obj__course', 'class_obj__instructor')
+            class_instance__academic_year=datetime.now().year
+        ).select_related('class_instance__course', 'class_instance__instructor')
         
         enrolled_classes = []
         total_credits = 0
         
         for enrollment in current_semester_enrollments:
-            class_obj = enrollment.class_obj
+            class_obj = enrollment.class_instance
             
             # Get current grade
             grades = Grade.objects.filter(enrollment=enrollment)
@@ -214,13 +214,13 @@ class DashboardViewSet(viewsets.GenericViewSet):
         # Upcoming exams
         from courses.models import Exam
         upcoming_exams = Exam.objects.filter(
-            class_obj__in=[e.class_obj for e in current_semester_enrollments],
+            class_instance__in=[e.class_instance for e in current_semester_enrollments],
             exam_date__gte=datetime.now()
         ).order_by('exam_date')[:5]
         
         exams = [
             {
-                'course_name': exam.class_obj.course.course_name,
+                'course_name': exam.class_instance.course.course_name,
                 'exam_type': exam.get_exam_type_display(),
                 'exam_date': exam.exam_date,
                 'room': f"{exam.room.building} - {exam.room.room_number}" if exam.room else 'TBA'
@@ -231,11 +231,11 @@ class DashboardViewSet(viewsets.GenericViewSet):
         # Recent grades
         recent_grades = Grade.objects.filter(
             enrollment__student=student
-        ).select_related('enrollment__class_obj__course').order_by('-graded_date')[:5]
+        ).select_related('enrollment__class_instance__course').order_by('-graded_date')[:5]
         
         grades_list = [
             {
-                'course_name': grade.enrollment.class_obj.course.course_name,
+                'course_name': grade.enrollment.class_instance.course.course_name,
                 'assignment_name': grade.assignment_name,
                 'grade': f"{(grade.marks_obtained / grade.total_marks * 100):.1f}%",
                 'date': grade.graded_date
@@ -334,7 +334,7 @@ class DashboardViewSet(viewsets.GenericViewSet):
         for class_obj in my_classes:
             # Calculate average attendance
             class_attendance = Attendance.objects.filter(
-                enrollment__class_obj=class_obj
+                enrollment__class_instance=class_obj
             )
             total_att = class_attendance.count()
             present_att = class_attendance.filter(status='PRESENT').count()
@@ -354,7 +354,7 @@ class DashboardViewSet(viewsets.GenericViewSet):
         # Upcoming exams
         from courses.models import Exam
         upcoming_exams = Exam.objects.filter(
-            class_obj__in=my_classes,
+            class_instance__in=my_classes,
             exam_date__gte=datetime.now()
         ).order_by('exam_date')[:5]
         
@@ -370,7 +370,7 @@ class DashboardViewSet(viewsets.GenericViewSet):
         
         # Pending grading
         pending_grading = Enrollment.objects.filter(
-            class_obj__in=my_classes,
+            class_instance__in=my_classes,
             status='ENROLLED',
             grade__isnull=True
         ).count()
