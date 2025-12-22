@@ -1,6 +1,6 @@
 import pyotp
 
-secret = "EGUV423NUWV7QJMSQQKD7CVGYWQ37P52"
+secret = "EVPJIWANQJCHA65UKIQKOY47BUHFFUVM"
 totp = pyotp.TOTP(secret)
 
 print(totp.now())
