@@ -121,3 +121,96 @@ class StandardResponse:
             "message": "Please provide OTP code",
             "temp_token": temp_token
         }
+
+
+def calculate_letter_grade(percentage):
+    """
+    Calculate letter grade from percentage.
+    
+    Args:
+        percentage (float): Percentage score
+    
+    Returns:
+        str: Letter grade (A+, A, B+, B, C+, C, D, F)
+    """
+    if percentage >= 95:
+        return 'A+'
+    elif percentage >= 90:
+        return 'A'
+    elif percentage >= 85:
+        return 'B+'
+    elif percentage >= 80:
+        return 'B'
+    elif percentage >= 75:
+        return 'C+'
+    elif percentage >= 70:
+        return 'C'
+    elif percentage >= 60:
+        return 'D'
+    else:
+        return 'F'
+
+
+def calculate_grade_points(letter_grade):
+    """
+    Calculate grade points from letter grade.
+    
+    Args:
+        letter_grade (str): Letter grade
+    
+    Returns:
+        float: Grade points on 4.0 scale
+    """
+    grade_point_map = {
+        'A+': 4.00,
+        'A': 4.00,
+        'B+': 3.50,
+        'B': 3.00,
+        'C+': 2.50,
+        'C': 2.00,
+        'D': 1.00,
+        'F': 0.00
+    }
+    return grade_point_map.get(letter_grade, 0.00)
+
+
+def calculate_weighted_average(grades):
+    """
+    Calculate weighted average from grades.
+    
+    Args:
+        grades (QuerySet): QuerySet of Grade objects
+    
+    Returns:
+        float: Weighted average percentage
+    """
+    if not grades:
+        return 0.0
+    
+    total_weighted_score = sum(g.weighted_score for g in grades)
+    total_weight = sum(g.weight_percentage for g in grades)
+    
+    if total_weight == 0:
+        return 0.0
+    
+    return total_weighted_score
+
+
+def check_academic_status(student):
+    """
+    Check and update student academic status based on GPA.
+    
+    Args:
+        student: Student object
+    
+    Returns:
+        str: New academic status
+    """
+    gpa = float(student.gpa)
+    
+    if gpa < 2.0:
+        return 'SUSPENDED'
+    elif gpa >= 2.0:
+        return 'ACTIVE'
+    
+    return student.academic_status
