@@ -12,6 +12,9 @@ from django.contrib.auth import update_session_auth_hash
 from datetime import timedelta
 from django.db.models import Q
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 from accounts.models import User
 from accounts.serializers import (
     UserSerializer, UserCreateSerializer, UserUpdateSerializer,
@@ -30,7 +33,7 @@ from core.exceptions import (
 )
 from core.models import AuditLog
 
-
+bearer_security = [{'Bearer': []}]
 class AuthViewSet(viewsets.GenericViewSet):
     """
     ViewSet for authentication operations.
@@ -46,7 +49,16 @@ class AuthViewSet(viewsets.GenericViewSet):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
-    
+    @swagger_auto_schema(
+        operation_summary="User Login",
+        operation_description="Authenticate user using username/email and password",
+        request_body=LoginSerializer,
+        responses={
+            200: openapi.Response('Login successful'),
+            202: openapi.Response('2FA required'),
+            400: 'Invalid credentials'
+        }
+    )
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):
         """User login endpoint."""
@@ -93,15 +105,20 @@ class AuthViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK
         )
     
+    @swagger_auto_schema(
+        operation_summary="Verify Login 2FA",
+        operation_description="Verify OTP code after login when 2FA is enabled",
+        request_body=Login2FASerializer,
+        responses={200: 'JWT Tokens issued'}
+    )
     @action(detail=False, methods=['post'], url_path='verify-2fa')
     def verify_2fa(self, request):
-        """Verify 2FA OTP code."""
         serializer = Login2FASerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         temp_token = serializer.validated_data['temp_token']
         otp_code = serializer.validated_data['otp_code']
-        
+
         try:
             user = User.objects.get(
                 password_reset_token=temp_token,
@@ -111,26 +128,17 @@ class AuthViewSet(viewsets.GenericViewSet):
             )
         except User.DoesNotExist:
             raise InvalidTokenError('Invalid or expired token')
-        
+
         if not verify_otp(user.otp_secret, otp_code):
             raise InvalidOTPError('Invalid OTP code')
-        
+
         user.password_reset_token = None
         user.password_reset_expires = None
         user.last_login = timezone.now()
         user.save()
-        
+
         tokens = self.get_tokens_for_user(user)
-        
-        AuditLog.objects.create(
-            user=user,
-            action='LOGIN',
-            model_name='User',
-            object_id=user.id,
-            ip_address=get_client_ip(request),
-            user_agent=get_user_agent(request)
-        )
-        
+
         return Response(
             StandardResponse.success(
                 data={
@@ -143,7 +151,20 @@ class AuthViewSet(viewsets.GenericViewSet):
             ),
             status=status.HTTP_200_OK
         )
-    
+        
+    @swagger_auto_schema(
+        operation_summary="Logout",
+        operation_description="Invalidate refresh token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'refresh_token': openapi.Schema(type=openapi.TYPE_STRING)
+            },
+            required=['refresh_token']
+        ),
+        security=bearer_security,
+        responses={200: 'Logged out'}
+    )    
     @action(detail=False, methods=['post'], url_path='logout', permission_classes=[IsAuthenticated])
     def logout(self, request):
         """User logout endpoint."""
@@ -168,7 +189,17 @@ class AuthViewSet(viewsets.GenericViewSet):
             )
         except TokenError:
             raise InvalidTokenError('Invalid refresh token')
-    
+    @swagger_auto_schema(
+        operation_summary="Refresh JWT Token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'refresh_token': openapi.Schema(type=openapi.TYPE_STRING)
+            },
+            required=['refresh_token']
+        ),
+        responses={200: 'New access token'}
+    )    
     @action(detail=False, methods=['post'], url_path='refresh')
     def refresh_token(self, request):
         """Refresh access token."""
@@ -191,7 +222,11 @@ class AuthViewSet(viewsets.GenericViewSet):
             )
         except TokenError:
             raise InvalidTokenError('Invalid or expired refresh token')
-    
+    @swagger_auto_schema(
+        operation_summary="Request Password Reset",
+        request_body=PasswordResetRequestSerializer,
+        responses={200: 'Reset email sent'}
+    )
     @action(detail=False, methods=['post'], url_path='password-reset')
     def password_reset(self, request):
         """Request password reset."""
@@ -227,7 +262,11 @@ class AuthViewSet(viewsets.GenericViewSet):
             ),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Confirm Password Reset",
+        request_body=PasswordResetConfirmSerializer,
+        responses={200: 'Password reset successful'}
+    )    
     @action(detail=False, methods=['post'], url_path='password-reset-confirm')
     def password_reset_confirm(self, request):
         """Confirm password reset."""
@@ -279,7 +318,15 @@ class UserViewSet(viewsets.ModelViewSet):
         elif self.action == 'list':
             return [IsAdmin()]
         return [IsAuthenticated()]
-    
+    @swagger_auto_schema(
+        operation_summary="List Users",
+        manual_parameters=[
+            openapi.Parameter('role', openapi.IN_QUERY, type=openapi.TYPE_STRING),
+            openapi.Parameter('is_active', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN),
+            openapi.Parameter('search', openapi.IN_QUERY, type=openapi.TYPE_STRING),
+        ],
+        security=bearer_security
+    )    
     def list(self, request):
         """List all users with filtering."""
         queryset = self.get_queryset()
@@ -313,7 +360,11 @@ class UserViewSet(viewsets.ModelViewSet):
             StandardResponse.success(data=serializer.data),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Create User",
+        request_body=UserCreateSerializer,
+        security=bearer_security
+    )    
     def create(self, request):
         """Create new user."""
         serializer = self.get_serializer(data=request.data)
@@ -327,7 +378,11 @@ class UserViewSet(viewsets.ModelViewSet):
             ),
             status=status.HTTP_201_CREATED
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Update User",
+        request_body=UserUpdateSerializer,
+        security=bearer_security
+    )
     def update(self, request, pk=None):
         """Update user."""
         user = self.get_object()
@@ -364,7 +419,12 @@ class UserViewSet(viewsets.ModelViewSet):
             StandardResponse.success(message='User deleted successfully'),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Assign Role",
+        request_body=RoleAssignSerializer,
+        security=bearer_security,
+        responses={200: 'Role assigned'}
+    )    
     @action(detail=True, methods=['post'], url_path='assign-role', permission_classes=[IsAdmin])
     def assign_role(self, request, pk=None):
         """Assign role to user."""
@@ -382,7 +442,10 @@ class UserViewSet(viewsets.ModelViewSet):
             ),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Get Current User",
+        security=bearer_security
+    )    
     @action(detail=False, methods=['get'], url_path='me', permission_classes=[IsAuthenticated])
     def me(self, request):
         """Get current user profile."""
@@ -391,7 +454,16 @@ class UserViewSet(viewsets.ModelViewSet):
             StandardResponse.success(data=serializer.data),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Enable 2FA",
+        operation_description="Generate QR code for authenticator app",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={}
+        ),
+        security=bearer_security,
+        responses={200: 'QR Code generated'}
+    )    
     @action(detail=False, methods=['post'], url_path='enable-2fa', permission_classes=[IsAuthenticated])
     def enable_2fa(self, request):
         """Enable 2FA for user."""
@@ -422,7 +494,12 @@ class UserViewSet(viewsets.ModelViewSet):
             ),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Verify 2FA Setup",
+        request_body=Verify2FASerializer,
+        security=bearer_security,
+        responses={200: '2FA enabled'}
+    )    
     @action(detail=False, methods=['post'], url_path='verify-2fa-setup', permission_classes=[IsAuthenticated])
     def verify_2fa_setup(self, request):
         """Verify and confirm 2FA setup."""
@@ -440,7 +517,11 @@ class UserViewSet(viewsets.ModelViewSet):
             ),
             status=status.HTTP_200_OK
         )
-    
+    @swagger_auto_schema(
+        operation_summary="Disable 2FA",
+        security=bearer_security,
+        responses={200: '2FA disabled'}
+    )    
     @action(detail=False, methods=['post'], url_path='disable-2fa', permission_classes=[IsAuthenticated])
     def disable_2fa(self, request):
         """Disable 2FA for user."""
