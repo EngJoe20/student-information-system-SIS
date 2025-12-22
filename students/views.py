@@ -215,9 +215,9 @@ class StudentViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
     @swagger_auto_schema(
-    method='get',
-    operation_summary="Student Attendance",
-    operation_description="Get student attendance records"
+        method='get',
+        operation_summary="Student Attendance",
+        operation_description="Get student attendance records"
     )
     @action(detail=True, methods=['get'], url_path='attendance')
     def attendance(self, request, pk=None):
@@ -225,28 +225,28 @@ class StudentViewSet(viewsets.ModelViewSet):
         Get student attendance records.
         """
         student = self.get_object()
-
         semester = request.query_params.get('semester')
         academic_year = request.query_params.get('academic_year')
 
+        # FIX 1: Correct relationship path (enrollment__class_instance__course)
         attendance_qs = Attendance.objects.select_related(
-            'class_instance',
-            'class_instance__course'
-        ).filter(student=student)
+            'enrollment__class_instance__course'
+        ).filter(enrollment__student=student)
 
         if semester:
             attendance_qs = attendance_qs.filter(
-                class_instance__semester=semester
+                enrollment__class_instance__semester=semester
             )
 
         if academic_year:
             attendance_qs = attendance_qs.filter(
-                class_instance__academic_year=academic_year
+                enrollment__class_instance__academic_year=academic_year
             )
 
         data = [
             {
-                "course": a.class_instance.course.name,
+                # FIX 2: Access class_instance via enrollment, and use course_name
+                "course": a.enrollment.class_instance.course.course_name,
                 "date": a.date,
                 "status": a.status
             }
@@ -325,20 +325,22 @@ class StudentViewSet(viewsets.ModelViewSet):
         total_credits = 0
 
         for e in completed:
-            credits = e.class_instance.course.credits
-            grade_point = e.grade_point  # assume stored on enrollment
+            course_credits = e.class_instance.course.credits
+            # Handle potential None value for grade_points
+            points = e.grade_points if e.grade_points is not None else 0.0
 
             transcript.append({
-                "course": e.class_instance.course.name,
-                "credits": credits,
+                # FIX 3: Use course_name instead of name
+                "course": e.class_instance.course.course_name,
+                "credits": course_credits,
                 "grade": e.final_grade,
-                "grade_point": grade_point
+                "grade_point": points
             })
 
-            total_points += grade_point * credits
-            total_credits += credits
+            total_points += float(points) * course_credits
+            total_credits += course_credits
 
-        gpa = round(total_points / total_credits, 2) if total_credits else 0
+        gpa = round(total_points / total_credits, 2) if total_credits > 0 else 0.00
 
         return Response(
             StandardResponse.success(
