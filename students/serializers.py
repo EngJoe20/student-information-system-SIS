@@ -14,12 +14,7 @@ class StudentCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Student
-        fields = [
-            'address', 'city', 'state', 'postal_code', 'country',
-            'emergency_contact_name', 'emergency_contact_phone',
-            'phone_number', 'academic_status', 'profile_picture',
-            'graduation_date'
-        ]
+        fields = '__all__'
     
     def create(self, validated_data):
         """Create user and student profile together."""

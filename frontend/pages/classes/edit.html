@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Class - SIS</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -12,19 +13,20 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
-    
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+
 <body>
     <!-- Navbar -->
     <div id="navbar-container"></div>
-    
+
     <!-- Sidebar -->
     <div id="sidebar-container"></div>
-    
+
     <!-- Main Content -->
     <div class="main-content">
         <div class="container-fluid">
@@ -34,13 +36,13 @@
                     <i class="bi bi-arrow-left"></i> Back to List
                 </a>
             </div>
-            
+
             <div id="loading-container" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
-            
+
             <div id="edit-form-container" style="display: none;">
                 <div class="row">
                     <div class="col-md-12">
@@ -54,12 +56,13 @@
                                             <small class="text-muted">Class code cannot be changed</small>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="section" class="form-label">Section <span class="text-danger">*</span></label>
+                                            <label for="section" class="form-label">Section <span
+                                                    class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="section" required>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="instructor" class="form-label">Instructor</label>
@@ -68,15 +71,18 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="max_capacity" class="form-label">Max Capacity <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control" id="max_capacity" min="1" required>
+                                            <label for="max_capacity" class="form-label">Max Capacity <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="max_capacity" min="1"
+                                                required>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-4">
-                                            <label for="semester" class="form-label">Semester <span class="text-danger">*</span></label>
+                                            <label for="semester" class="form-label">Semester <span
+                                                    class="text-danger">*</span></label>
                                             <select class="form-select" id="semester" required>
                                                 <option value="">Select...</option>
                                                 <option value="FALL">Fall</option>
@@ -86,8 +92,10 @@
                                             <div class="invalid-feedback"></div>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="academic_year" class="form-label">Academic Year <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control" id="academic_year" min="2020" max="2100" required>
+                                            <label for="academic_year" class="form-label">Academic Year <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="academic_year" min="2020"
+                                                max="2100" required>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                         <div class="col-md-4">
@@ -97,7 +105,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="status" class="form-label">Status</label>
@@ -108,17 +116,18 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <label class="form-label">Schedule</label>
                                             <div id="schedule-container"></div>
-                                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-schedule-item">
+                                            <button type="button" class="btn btn-sm btn-outline-primary mt-2"
+                                                id="add-schedule-item">
                                                 <i class="bi bi-plus"></i> Add Schedule Item
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     <hr class="my-4">
                                     <div class="d-flex justify-content-end gap-2">
                                         <a href="list.html" class="btn btn-secondary">Cancel</a>
@@ -134,10 +143,10 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Toast Container -->
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
-    
+
     <!-- Scripts -->
     <script src="../../assets/js/config.js"></script>
     <script src="../../assets/js/utils.js"></script>
@@ -145,74 +154,53 @@
     <script src="../../assets/js/api.js"></script>
     <script>
         let classId = null;
-        
-        $(document).ready(function() {
+        let classData = null;
+
+        $(document).ready(function () {
             if (!requireRole([CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) return;
-            
+
             $('#navbar-container').load('../../components/navbar.html');
             $('#sidebar-container').load('../../components/sidebar.html');
-            
+
             const urlParams = new URLSearchParams(window.location.search);
             classId = urlParams.get('id');
-            
+
             if (!classId) {
                 showToast('Class ID is required', 'error');
                 setTimeout(() => window.location.href = 'list.html', 2000);
                 return;
             }
-            
-            // Load users (for instructors)
-            UserAPI.list({ role: 'INSTRUCTOR' })
-                .then(function(response) {
-                    if (response.status === 'success') {
-                        const select = $('#instructor');
-                        response.data.results.forEach(function(user) {
-                            select.append('<option value="' + user.id + '">' + 
-                                escapeHtml(user.full_name) + '</option>');
-                        });
-                    }
-                });
-            
-            // Load rooms
-            RoomAPI.list({})
-                .then(function(response) {
-                    if (response.status === 'success') {
-                        const select = $('#room');
-                        response.data.results.forEach(function(room) {
-                            select.append('<option value="' + room.id + '">' + 
-                                escapeHtml(room.building) + ' - ' + escapeHtml(room.room_number) + '</option>');
-                        });
-                    }
-                });
-            
-            // Add schedule item
-            $('#add-schedule-item').on('click', function() {
+
+            // Add schedule item button
+            $('#add-schedule-item').on('click', function () {
                 addScheduleItem();
             });
-            
-            // Remove schedule item
-            $(document).on('click', '.remove-schedule-item', function() {
+
+            // Remove schedule item button
+            $(document).on('click', '.remove-schedule-item', function () {
                 $(this).closest('.schedule-item').remove();
             });
-            
-            loadClassData();
-            
-            $('#edit-class-form').on('submit', function(e) {
+
+            // Load everything in the right order
+            loadAllData();
+
+            // Form submission
+            $('#edit-class-form').on('submit', function (e) {
                 e.preventDefault();
-                
+
                 if (!this.checkValidity()) {
                     e.stopPropagation();
                     $(this).addClass('was-validated');
                     return;
                 }
-                
+
                 // Collect schedule
                 const schedule = [];
-                $('.schedule-item').each(function() {
+                $('.schedule-item').each(function () {
                     const day = $(this).find('.day-select').val();
                     const startTime = $(this).find('.start-time').val();
                     const endTime = $(this).find('.end-time').val();
-                    
+
                     if (day && startTime && endTime) {
                         schedule.push({
                             day: day,
@@ -221,7 +209,7 @@
                         });
                     }
                 });
-                
+
                 const formData = {
                     instructor: $('#instructor').val() || null,
                     section: $('#section').val().trim(),
@@ -232,21 +220,17 @@
                     status: $('#status').val(),
                     schedule: schedule
                 };
-                
+
                 const submitBtn = $('#submit-btn');
                 submitBtn.prop('disabled', true);
                 submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
-                
+
                 ClassAPI.update(classId, formData)
-                    .then(function(response) {
-                        if (response.status === 'success') {
-                            showToast('Class updated successfully!', 'success');
-                            setTimeout(function() {
-                                window.location.href = 'view.html?id=' + classId;
-                            }, 1500);
-                        }
+                    .then(function (cls) {
+                        showToast('Class updated successfully!', 'success');
+                        setTimeout(() => window.location.href = 'view.html?id=' + classId, 1500);
                     })
-                    .catch(function(xhr) {
+                    .catch(function (xhr) {
                         if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
                             const errors = xhr.responseJSON.errors;
                             for (const field in errors) {
@@ -262,64 +246,164 @@
                             showToast('Failed to update class. Please try again.', 'error');
                         }
                     })
-                    .finally(function() {
+                    .finally(function () {
                         submitBtn.prop('disabled', false);
                         submitBtn.html('<i class="bi bi-check-circle"></i> Update Class');
                     });
             });
         });
-        
-        function loadClassData() {
-            ClassAPI.get(classId)
-                .then(function(response) {
-                    if (response.status === 'success') {
-                        const cls = response.data;
-                        populateForm(cls);
-                        $('#loading-container').hide();
-                        $('#edit-form-container').show();
-                    }
-                })
-                .catch(function(error) {
+
+        function loadAllData() {
+            $('#loading-container').show();
+            $('#edit-form-container').hide();
+            
+            // Load instructors, rooms, and class data in parallel
+            Promise.all([
+                UserAPI.list({ role: 'INSTRUCTOR' }).catch(e => { console.error('Instructors error:', e); return null; }),
+                RoomAPI.list({}).catch(e => { console.error('Rooms error:', e); return null; }),
+                ClassAPI.get(classId).catch(e => { console.error('Class error:', e); return null; })
+            ]).then(function (responses) {
+                console.log('All responses:', responses);
+                
+                // Load instructors dropdown
+                if (responses[0] && responses[0].status === 'success') {
+                    const select = $('#instructor');
+                    console.log('Loading instructors:', responses[0].data.results.length);
+                    responses[0].data.results.forEach(function (user) {
+                        select.append($('<option></option>')
+                            .attr('value', user.id)
+                            .text(user.full_name));
+                    });
+                } else {
+                    console.error('Failed to load instructors');
+                }
+
+                // Load rooms dropdown
+                if (responses[1] && responses[1].status === 'success') {
+                    const select = $('#room');
+                    console.log('Loading rooms:', responses[1].data.results.length);
+                    responses[1].data.results.forEach(function (room) {
+                        select.append($('<option></option>')
+                            .attr('value', room.id)
+                            .text(room.building + ' - ' + room.room_number));
+                    });
+                } else {
+                    console.error('Failed to load rooms');
+                }
+
+                // Store class data and populate form
+                if (responses[2]) {
+                    classData = responses[2];
+                    console.log('Class data loaded:', classData);
+                    populateForm(classData);
+                    
+                    // Show the form
+                    $('#loading-container').hide();
+                    $('#edit-form-container').show();
+                } else {
                     showToast('Failed to load class data', 'error');
-                    console.error(error);
-                });
+                    setTimeout(() => window.location.href = 'list.html', 2000);
+                }
+            }).catch(function (error) {
+                console.error('Error loading data:', error);
+                showToast('Failed to load data', 'error');
+                setTimeout(() => window.location.href = 'list.html', 2000);
+            });
         }
-        
+
         function populateForm(cls) {
+            console.log('Populating form with:', cls);
+            
             $('#class_code').val(cls.class_code);
             $('#section').val(cls.section);
-            $('#instructor').val(cls.instructor?.id || '');
             $('#max_capacity').val(cls.max_capacity);
             $('#semester').val(cls.semester);
             $('#academic_year').val(cls.academic_year);
-            $('#room').val(cls.room?.id || '');
             $('#status').val(cls.status);
+
+            // Handle instructor - can be string ID or object
+            const instructorId = typeof cls.instructor === 'string' ? cls.instructor : (cls.instructor?.id || '');
+            console.log('Instructor ID to set:', instructorId);
+            console.log('Available instructor options:', $('#instructor option').length);
             
+            // Set instructor value after a small delay to ensure options are loaded
+            setTimeout(function() {
+                $('#instructor').val(instructorId);
+                const selectedText = $('#instructor option:selected').text();
+                console.log('Instructor set, selected text:', selectedText);
+            }, 100);
+
+            // Handle room - can be string ID or object
+            const roomId = typeof cls.room === 'string' ? cls.room : (cls.room?.id || '');
+            console.log('Room ID to set:', roomId);
+            $('#room').val(roomId);
+
+            // Clear schedule container first
+            $('#schedule-container').empty();
+
             // Schedule
             if (cls.schedule && cls.schedule.length > 0) {
-                cls.schedule.forEach(function(s) {
+                console.log('Adding schedules, count:', cls.schedule.length);
+                cls.schedule.forEach(function (s) {
+                    console.log('Schedule item:', s);
                     addScheduleItem(s.day, s.start_time, s.end_time);
                 });
+            } else {
+                console.log('No schedule data found');
             }
         }
-        
+
         function addScheduleItem(day = '', startTime = '', endTime = '') {
-            const html = '<div class="schedule-item mb-2">' +
-                '<div class="row g-2">' +
-                '<div class="col-md-4"><select class="form-select day-select"><option value="">Day...</option>' +
-                '<option value="MONDAY"' + (day === 'MONDAY' ? ' selected' : '') + '>Monday</option>' +
-                '<option value="TUESDAY"' + (day === 'TUESDAY' ? ' selected' : '') + '>Tuesday</option>' +
-                '<option value="WEDNESDAY"' + (day === 'WEDNESDAY' ? ' selected' : '') + '>Wednesday</option>' +
-                '<option value="THURSDAY"' + (day === 'THURSDAY' ? ' selected' : '') + '>Thursday</option>' +
-                '<option value="FRIDAY"' + (day === 'FRIDAY' ? ' selected' : '') + '>Friday</option>' +
-                '<option value="SATURDAY"' + (day === 'SATURDAY' ? ' selected' : '') + '>Saturday</option>' +
-                '<option value="SUNDAY"' + (day === 'SUNDAY' ? ' selected' : '') + '>Sunday</option></select></div>' +
-                '<div class="col-md-4"><input type="time" class="form-control start-time" value="' + startTime.substring(0, 5) + '" placeholder="Start Time"></div>' +
-                '<div class="col-md-3"><input type="time" class="form-control end-time" value="' + endTime.substring(0, 5) + '" placeholder="End Time"></div>' +
-                '<div class="col-md-1"><button type="button" class="btn btn-sm btn-danger remove-schedule-item"><i class="bi bi-x"></i></button></div></div></div>';
-            $('#schedule-container').append(html);
+            // Handle time formatting safely
+            const formatTime = function(time) {
+                if (!time) return '';
+                // If time is like "14:00:00", take first 5 chars "14:00"
+                return String(time).substring(0, 5);
+            };
+
+            const formattedStart = formatTime(startTime);
+            const formattedEnd = formatTime(endTime);
+
+            const scheduleItem = $('<div class="schedule-item mb-2"></div>');
+            const row = $('<div class="row g-2"></div>');
+
+            // Day select
+            const dayCol = $('<div class="col-md-4"></div>');
+            const daySelect = $('<select class="form-select day-select"></select>');
+            daySelect.append('<option value="">Day...</option>');
+            const days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+            const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            days.forEach(function(d, i) {
+                const option = $('<option></option>').attr('value', d).text(dayNames[i]);
+                if (d === day) option.attr('selected', 'selected');
+                daySelect.append(option);
+            });
+            dayCol.append(daySelect);
+
+            // Start time
+            const startCol = $('<div class="col-md-4"></div>');
+            const startInput = $('<input type="time" class="form-control start-time" placeholder="Start Time">');
+            startInput.val(formattedStart);
+            startCol.append(startInput);
+
+            // End time
+            const endCol = $('<div class="col-md-3"></div>');
+            const endInput = $('<input type="time" class="form-control end-time" placeholder="End Time">');
+            endInput.val(formattedEnd);
+            endCol.append(endInput);
+
+            // Remove button
+            const btnCol = $('<div class="col-md-1"></div>');
+            const removeBtn = $('<button type="button" class="btn btn-sm btn-danger remove-schedule-item"><i class="bi bi-x"></i></button>');
+            btnCol.append(removeBtn);
+
+            row.append(dayCol, startCol, endCol, btnCol);
+            scheduleItem.append(row);
+            $('#schedule-container').append(scheduleItem);
+
+            console.log('Added schedule item:', day, formattedStart, formattedEnd);
         }
     </script>
 </body>
-</html>
 
+</html>

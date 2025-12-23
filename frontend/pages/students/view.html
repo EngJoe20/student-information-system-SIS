@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Student - SIS</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -12,19 +13,20 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/theme-overrides.css">
-    
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+
 <body>
     <!-- Navbar -->
     <div id="navbar-container"></div>
-    
+
     <!-- Sidebar -->
     <div id="sidebar-container"></div>
-    
+
     <!-- Main Content -->
     <div class="main-content">
         <div class="container-fluid">
@@ -37,13 +39,13 @@
                     <span id="edit-button-container"></span>
                 </div>
             </div>
-            
+
             <div id="loading-container" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
-            
+
             <div id="student-details" style="display: none;">
                 <!-- Student Profile Card -->
                 <div class="row mb-4">
@@ -63,7 +65,8 @@
                                             <strong>Academic Status:</strong> <span id="academic-status"></span>
                                         </p>
                                         <p class="text-muted mb-0">
-                                            <strong>GPA:</strong> <span id="student-gpa" class="fw-bold text-primary"></span>
+                                            <strong>GPA:</strong> <span id="student-gpa"
+                                                class="fw-bold text-primary"></span>
                                         </p>
                                     </div>
                                     <div class="col-md-4 text-end">
@@ -74,36 +77,41 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Tabs -->
                 <ul class="nav nav-tabs mb-4" id="student-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
+                            type="button" role="tab">
                             Profile
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="enrollments-tab" data-bs-toggle="tab" data-bs-target="#enrollments" type="button" role="tab">
+                        <button class="nav-link" id="enrollments-tab" data-bs-toggle="tab" data-bs-target="#enrollments"
+                            type="button" role="tab">
                             Enrollments
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab">
+                        <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance"
+                            type="button" role="tab">
                             Attendance
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="grades-tab" data-bs-toggle="tab" data-bs-target="#grades" type="button" role="tab">
+                        <button class="nav-link" id="grades-tab" data-bs-toggle="tab" data-bs-target="#grades"
+                            type="button" role="tab">
                             Grades
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript" type="button" role="tab">
+                        <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript"
+                            type="button" role="tab">
                             Transcript
                         </button>
                     </li>
                 </ul>
-                
+
                 <!-- Tab Content -->
                 <div class="tab-content" id="student-tab-content">
                     <!-- Profile Tab -->
@@ -134,7 +142,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row mt-4">
                             <div class="col-md-6">
                                 <div class="card">
@@ -160,7 +168,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Enrollments Tab -->
                     <div class="tab-pane fade" id="enrollments" role="tabpanel">
                         <div class="card">
@@ -175,7 +183,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Attendance Tab -->
                     <div class="tab-pane fade" id="attendance" role="tabpanel">
                         <div class="card">
@@ -190,7 +198,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Grades Tab -->
                     <div class="tab-pane fade" id="grades" role="tabpanel">
                         <div class="card">
@@ -205,7 +213,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Transcript Tab -->
                     <div class="tab-pane fade" id="transcript" role="tabpanel">
                         <div class="card">
@@ -230,10 +238,10 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Toast Container -->
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
-    
+
     <!-- Scripts -->
     <script src="../../assets/js/config.js"></script>
     <script src="../../assets/js/utils.js"></script>
@@ -241,28 +249,28 @@
     <script src="../../assets/js/api.js"></script>
     <script>
         let studentId = null;
-        
-        $(document).ready(function() {
+
+        $(document).ready(function () {
             // Check authentication
             if (!requireAuth()) {
                 return;
             }
-            
+
             // Load navbar and sidebar
             $('#navbar-container').load('../../components/navbar.html');
             $('#sidebar-container').load('../../components/sidebar.html');
-            
+
             // Get student ID from URL
             const urlParams = new URLSearchParams(window.location.search);
             studentId = urlParams.get('id');
-            
+
             if (!studentId) {
                 // If no ID, check if user is a student viewing their own profile
                 const user = getCurrentUser();
                 if (user && user.role === CONFIG.ROLES.STUDENT) {
                     // Get student ID from user profile
                     StudentAPI.list({ search: user.username })
-                        .then(function(response) {
+                        .then(function (response) {
                             if (response.status === 'success' && response.data.results.length > 0) {
                                 studentId = response.data.results[0].id;
                                 loadStudentDetails();
@@ -277,36 +285,32 @@
             } else {
                 loadStudentDetails();
             }
-            
+
             // Tab change handlers
-            $('#enrollments-tab').on('click', function() {
+            $('#enrollments-tab').on('click', function () {
                 if (studentId) loadEnrollments();
             });
-            $('#attendance-tab').on('click', function() {
+            $('#attendance-tab').on('click', function () {
                 if (studentId) loadAttendance();
             });
-            $('#grades-tab').on('click', function() {
+            $('#grades-tab').on('click', function () {
                 if (studentId) loadGrades();
             });
-            $('#transcript-tab').on('click', function() {
+            $('#transcript-tab').on('click', function () {
                 if (studentId) loadTranscript();
             });
-            
+
             // Download transcript
-            $('#download-transcript-btn').on('click', function() {
-                if (studentId) {
-                    window.open(CONFIG.API_BASE_URL + '/reports/transcript/' + studentId + '/?format=pdf', '_blank');
-                }
-            });
+            $('#download-transcript-btn').on('click', downloadTranscriptPDF);
         });
-        
+
         function loadStudentDetails() {
             StudentAPI.get(studentId)
-                .then(function(response) {
+                .then(function (response) {
                     if (response.status === 'success') {
                         const student = response.data;
                         renderStudentDetails(student);
-                        
+
                         // Check permissions for edit button
                         const user = getCurrentUser();
                         if (hasPermission(user.role, [CONFIG.ROLES.ADMIN, CONFIG.ROLES.REGISTRAR])) {
@@ -317,24 +321,24 @@
                         }
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     showToast('Failed to load student details', 'error');
                     console.error(error);
                 });
         }
-        
+
         function renderStudentDetails(student) {
             $('#student-name').text(student.full_name);
             $('#student-id').text(student.student_id);
             $('#student-email').text(student.email || 'N/A');
             $('#academic-status').html(getStatusBadge(student.academic_status));
             $('#student-gpa').text(formatGPA(student.gpa));
-            
+
             // Personal Information
             $('#date-of-birth').text(formatDate(student.date_of_birth));
             $('#gender').text(student.gender || 'N/A');
             $('#phone').text(student.user?.phone_number || 'N/A');
-            
+
             // Address
             const addressParts = [];
             if (student.address) addressParts.push(student.address);
@@ -342,7 +346,7 @@
             if (student.state) addressParts.push(student.state);
             if (student.postal_code) addressParts.push(student.postal_code);
             if (student.country) addressParts.push(student.country);
-            
+
             if (addressParts.length > 0) {
                 $('#address-line1').text(addressParts[0] || '');
                 $('#address-line2').text(addressParts.slice(1, 3).join(', ') || '');
@@ -352,42 +356,42 @@
                 $('#address-line2').text('');
                 $('#address-line3').text('');
             }
-            
+
             // Emergency Contact
             $('#emergency-name').text(student.emergency_contact_name || 'N/A');
             $('#emergency-phone').text(student.emergency_contact_phone || 'N/A');
-            
+
             // Enrollment
             $('#enrollment-date').text(formatDate(student.enrollment_date));
             $('#graduation-date').text(formatDate(student.graduation_date));
-            
+
             $('#loading-container').hide();
             $('#student-details').show();
         }
-        
+
         function loadEnrollments() {
             StudentAPI.getEnrollments(studentId)
-                .then(function(response) {
+                .then(function (response) {
                     if (response.status === 'success') {
                         renderEnrollments(response.data);
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     $('#enrollments-list').html('<div class="alert alert-danger">Failed to load enrollments</div>');
                 });
         }
-        
+
         function renderEnrollments(enrollments) {
             if (!enrollments || enrollments.length === 0) {
                 $('#enrollments-list').html('<p class="text-muted text-center py-3">No enrollments found</p>');
                 return;
             }
-            
+
             let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
             html += '<th>Class Code</th><th>Course</th><th>Instructor</th><th>Semester</th><th>Status</th><th>Grade</th>';
             html += '</tr></thead><tbody>';
-            
-            enrollments.forEach(function(enrollment) {
+
+            enrollments.forEach(function (enrollment) {
                 html += '<tr>';
                 html += '<td>' + escapeHtml(enrollment.class_code) + '</td>';
                 html += '<td>' + escapeHtml(enrollment.course_name) + '</td>';
@@ -397,117 +401,327 @@
                 html += '<td>' + (enrollment.grade ? escapeHtml(enrollment.grade) : '-') + '</td>';
                 html += '</tr>';
             });
-            
+
             html += '</tbody></table></div>';
             $('#enrollments-list').html(html);
         }
-        
+
         function loadAttendance() {
             StudentAPI.getAttendance(studentId)
-                .then(function(response) {
+                .then(function (response) {
                     if (response.status === 'success') {
                         renderAttendance(response.data);
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     $('#attendance-list').html('<div class="alert alert-danger">Failed to load attendance</div>');
                 });
         }
-        
+
         function renderAttendance(attendance) {
             if (!attendance || attendance.length === 0) {
                 $('#attendance-list').html('<p class="text-muted text-center py-3">No attendance records found</p>');
                 return;
             }
-            
+
             let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
             html += '<th>Course</th><th>Date</th><th>Status</th>';
             html += '</tr></thead><tbody>';
-            
-            attendance.forEach(function(record) {
+
+            attendance.forEach(function (record) {
                 html += '<tr>';
                 html += '<td>' + escapeHtml(record.course) + '</td>';
                 html += '<td>' + formatDate(record.date) + '</td>';
                 html += '<td>' + getStatusBadge(record.status) + '</td>';
                 html += '</tr>';
             });
-            
+
             html += '</tbody></table></div>';
             $('#attendance-list').html(html);
         }
-        
         function loadGrades() {
-            StudentAPI.getGrades(studentId)
-                .then(function(response) {
-                    if (response.status === 'success') {
-                        renderGrades(response.data);
+            console.log('Loading grades for student ID:', studentId);
+            GradeAPI.getStudentGrades(studentId)
+                .then(function (response) {
+                    console.log('Grades API response:', response);
+
+                    if (response.status === 'success' && response.data.courses.length > 0) {
+                        renderGrades(response.data.courses); // نفذ على array الكورسات
+                    } else {
+                        $('#grades-list').html('<p class="text-muted text-center py-3">No grades found</p>');
                     }
                 })
-                .catch(function(error) {
+                .catch(function (error) {
+                    console.error('Grades API error:', error);
                     $('#grades-list').html('<div class="alert alert-danger">Failed to load grades</div>');
                 });
         }
-        
-        function renderGrades(grades) {
-            if (!grades || grades.length === 0) {
-                $('#grades-list').html('<p class="text-muted text-center py-3">No grades found</p>');
-                return;
-            }
-            
-            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>';
-            html += '<th>Course</th><th>Grade</th><th>Status</th>';
-            html += '</tr></thead><tbody>';
-            
-            grades.forEach(function(grade) {
-                html += '<tr>';
-                html += '<td>' + escapeHtml(grade.course) + '</td>';
-                html += '<td>' + escapeHtml(grade.grade) + '</td>';
-                html += '<td>' + getStatusBadge(grade.status) + '</td>';
-                html += '</tr>';
+
+
+
+        function renderGrades(courses) {
+            let html = '<table class="table table-striped">';
+            html += '<thead><tr><th>Course</th><th>Grade</th><th>Instructor</th></tr></thead><tbody>';
+
+            courses.forEach(course => {
+                html += `<tr>
+            <td>${course.class.course_name}</td>
+            <td>${course.final_grade || '-'}</td>
+            <td>${course.class.instructor_name}</td>
+        </tr>`;
             });
-            
-            html += '</tbody></table></div>';
+
+            html += '</tbody></table>';
+
             $('#grades-list').html(html);
         }
-        
+
+
         function loadTranscript() {
+            // Show loading spinner
+            $('#transcript-content').html(
+                '<div class="text-center py-5">' +
+                '<div class="spinner-border text-primary" role="status">' +
+                '<span class="visually-hidden">Loading...</span>' +
+                '</div>' +
+                '</div>'
+            );
+
             StudentAPI.getTranscript(studentId)
-                .then(function(response) {
-                    if (response.status === 'success') {
+                .then(function (response) {
+                    console.log('Transcript API response:', response);
+
+                    if (response.status === 'success' && response.data) {
                         renderTranscript(response.data);
+                    } else {
+                        $('#transcript-content').html(
+                            '<div class="alert alert-warning">No transcript available</div>'
+                        );
                     }
                 })
-                .catch(function(error) {
-                    $('#transcript-content').html('<div class="alert alert-danger">Failed to load transcript</div>');
+                .catch(function (error) {
+                    console.error('Transcript API error:', error);
+                    $('#transcript-content').html(
+                        '<div class="alert alert-danger">Failed to load transcript</div>'
+                    );
                 });
         }
-        
+
         function renderTranscript(transcript) {
             let html = '<div class="transcript">';
-            html += '<h5>Student: ' + escapeHtml(transcript.student) + '</h5>';
-            html += '<p><strong>GPA:</strong> ' + formatGPA(transcript.gpa) + '</p>';
-            
-            if (transcript.courses && transcript.courses.length > 0) {
-                html += '<div class="table-responsive mt-3"><table class="table"><thead><tr>';
-                html += '<th>Course</th><th>Credits</th><th>Grade</th><th>Grade Points</th>';
-                html += '</tr></thead><tbody>';
-                
-                transcript.courses.forEach(function(course) {
-                    html += '<tr>';
-                    html += '<td>' + escapeHtml(course.course) + '</td>';
-                    html += '<td>' + escapeHtml(course.credits) + '</td>';
-                    html += '<td>' + escapeHtml(course.grade) + '</td>';
-                    html += '<td>' + escapeHtml(course.grade_point) + '</td>';
-                    html += '</tr>';
-                });
-                
-                html += '</tbody></table></div>';
-            }
-            
-            html += '</div>';
-            $('#transcript-content').html(html);
-        }
-    </script>
-</body>
-</html>
 
+            // Get student name from the grades API data which has full student info
+            StudentAPI.get(studentId)
+                .then(function (studentResponse) {
+                    const studentName = studentResponse.data?.full_name || 'N/A';
+                    const studentID = studentResponse.data?.student_id || transcript.student || 'N/A';
+                    const studentGPA = transcript.gpa || 0;
+
+                    let html = '<div class="transcript">';
+                    html += '<div class="mb-4">';
+                    html += '<h5>Student: ' + escapeHtml(studentName) + '</h5>';
+                    html += '<p><strong>Student ID:</strong> ' + escapeHtml(studentID) + '</p>';
+                    html += '<p><strong>GPA:</strong> ' + formatGPA(studentGPA) + '</p>';
+                    html += '</div>';
+
+                    // Get grades data to map course codes and final grades
+                    GradeAPI.getStudentGrades(studentId)
+                        .then(function (gradesResponse) {
+                            const gradesData = gradesResponse.data.courses || [];
+
+                            // Create a map of course names to course codes and grades
+                            const courseMap = {};
+                            gradesData.forEach(function (item) {
+                                const courseName = item.class?.course_name;
+                                if (courseName) {
+                                    courseMap[courseName] = {
+                                        code: item.class.class_code,
+                                        grade: item.final_grade
+                                    };
+                                }
+                            });
+
+                            // Courses table
+                            if (transcript.courses && transcript.courses.length > 0) {
+                                html += '<div class="table-responsive mt-3">';
+                                html += '<table class="table table-bordered table-hover">';
+                                html += '<thead class="table-light"><tr>';
+                                html += '<th>Course Code</th>';
+                                html += '<th>Course Name</th>';
+                                html += '<th>Credits</th>';
+                                html += '<th>Grade</th>';
+                                html += '<th>Grade Points</th>';
+                                html += '</tr></thead><tbody>';
+
+                                transcript.courses.forEach(function (course) {
+                                    const courseName = course.course;
+                                    const courseInfo = courseMap[courseName] || {};
+                                    const courseCode = courseInfo.code || '-';
+                                    const finalGrade = courseInfo.grade || '-';
+
+                                    html += '<tr>';
+                                    html += '<td>' + escapeHtml(courseCode) + '</td>';
+                                    html += '<td>' + escapeHtml(courseName || '-') + '</td>';
+                                    html += '<td class="text-center">' + escapeHtml(course.credits || '-') + '</td>';
+                                    html += '<td class="text-center">' + escapeHtml(finalGrade) + '</td>';
+                                    html += '<td class="text-center">' + escapeHtml(course.grade_point || '-') + '</td>';
+                                    html += '</tr>';
+                                });
+
+                                html += '</tbody></table></div>';
+
+                                // Summary
+                                const totalCredits = transcript.total_credits ||
+                                    transcript.courses.reduce((sum, c) => sum + (parseFloat(c.credits) || 0), 0);
+
+                                html += '<div class="mt-3 p-3 bg-light rounded">';
+                                html += '<div class="row">';
+                                html += '<div class="col-md-6"><strong>Total Credits:</strong> ' + totalCredits.toFixed(1) + '</div>';
+                                html += '<div class="col-md-6"><strong>Cumulative GPA:</strong> ' + formatGPA(studentGPA) + '</div>';
+                                html += '</div></div>';
+                            } else {
+                                html += '<div class="alert alert-info">No courses available in transcript</div>';
+                            }
+
+                            html += '</div>';
+                            $('#transcript-content').html(html);
+                        })
+                        .catch(function (error) {
+                            console.error('Error loading grades for transcript:', error);
+                            $('#transcript-content').html('<div class="alert alert-danger">Failed to load complete transcript data</div>');
+                        });
+                })
+                .catch(function (error) {
+                    console.error('Error loading student data:', error);
+                    $('#transcript-content').html('<div class="alert alert-danger">Failed to load student information</div>');
+                });
+        }
+
+
+        function formatGPA(gpa) {
+            if (!gpa || isNaN(gpa)) return 'N/A';
+            return parseFloat(gpa).toFixed(2);
+        }
+
+
+        function downloadTranscriptPDF() {
+            if (!studentId) {
+                showToast('Student ID not found', 'error');
+                return;
+            }
+
+            const btn = $('#download-transcript-btn');
+            const originalText = btn.html();
+            btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Generating...');
+
+            Promise.all([
+                StudentAPI.getTranscript(studentId),
+                StudentAPI.get(studentId),
+                GradeAPI.getStudentGrades(studentId)
+            ])
+                .then(([transcriptResponse, studentResponse, gradesResponse]) => {
+                    if (transcriptResponse.status !== 'success' || !transcriptResponse.data) {
+                        throw new Error('No transcript data available');
+                    }
+
+                    generatePDF(transcriptResponse.data, studentResponse.data, gradesResponse.data);
+                    showToast('Transcript downloaded successfully', 'success');
+                })
+                .catch(error => {
+                    console.error('PDF generation error:', error);
+                    showToast('Failed to generate PDF', 'error');
+                })
+                .finally(() => {
+                    btn.prop('disabled', false).html(originalText);
+                });
+        }
+
+        function generatePDF(transcript, studentData, gradesData) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Header
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text('OFFICIAL TRANSCRIPT', 105, 20, { align: 'center' });
+
+            // Student Info
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const studentName = studentData?.full_name || 'N/A';
+            const studentID = studentData?.student_id || transcript.student || 'N/A';
+            const studentGPA = transcript.gpa || 0;
+            doc.text(`Student Name: ${studentName}`, 20, 40);
+            doc.text(`Student ID: ${studentID}`, 20, 48);
+            doc.text(`Cumulative GPA: ${studentGPA.toFixed(2)}`, 20, 56);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 64);
+
+            // Line separator
+            doc.setLineWidth(0.5);
+            doc.line(20, 70, 190, 70);
+
+            // Course map
+            const courseMap = {};
+            (gradesData.courses || []).forEach(item => {
+                const courseName = item.class?.course_name;
+                if (courseName) courseMap[courseName] = {
+                    code: item.class.class_code,
+                    grade: item.final_grade
+                };
+            });
+
+            // Courses Table
+            if (transcript.courses && transcript.courses.length > 0) {
+                const tableData = transcript.courses.map(course => {
+                    const info = courseMap[course.course] || {};
+                    return [
+                        info.code || '-',
+                        course.course || '-',
+                        (course.credits || '-').toString(),
+                        info.grade || '-',
+                        (course.grade_point || '-').toString()
+                    ];
+                });
+
+                doc.autoTable({
+                    startY: 75,
+                    head: [['Course Code', 'Course Name', 'Credits', 'Grade', 'Grade Points']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [41, 128, 185] },
+                    styles: { fontSize: 10 },
+                    columnStyles: {
+                        0: { cellWidth: 30 },
+                        1: { cellWidth: 80 },
+                        2: { cellWidth: 20, halign: 'center' },
+                        3: { cellWidth: 20, halign: 'center' },
+                        4: { cellWidth: 30, halign: 'center' }
+                    }
+                });
+
+                const finalY = doc.lastAutoTable.finalY + 10;
+                const totalCredits = transcript.total_credits || transcript.courses.reduce((sum, c) => sum + (parseFloat(c.credits) || 0), 0);
+                doc.setFont(undefined, 'bold');
+                doc.text(`Total Credits: ${totalCredits.toFixed(1)}`, 20, finalY);
+                doc.text(`Cumulative GPA: ${studentGPA.toFixed(2)}`, 120, finalY);
+
+                // Footer
+                doc.setFont(undefined, 'italic');
+                doc.setFontSize(8);
+                doc.text(`Generated on ${new Date().toLocaleString()}`, 105, 280, { align: 'center' });
+            } else {
+                doc.text('No courses available in transcript', 20, 80);
+            }
+
+            const filename = `transcript_${studentID}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(filename);
+        }
+
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+</body>
+
+</html>
