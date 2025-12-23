@@ -1,4 +1,4 @@
-# SIS Frontend - Setup Guide
+# Academia Frontend - Setup Guide
 
 ## Overview
 

@@ -51,8 +51,8 @@
       "is_active": true,
       "is_2fa_enabled": false,
       "phone_number": "+1234567890",
-      "created_at": "2024-01-01T00:00:00Z",
-      "last_login": "2024-01-15T10:30:00Z"
+      "created_at": "2025-01-01T00:00:00Z",
+      "last_login": "2025-01-15T10:30:00Z"
     },
     "requires_2fa": false
   }
@@ -191,8 +191,8 @@
         "is_active": true,
         "is_2fa_enabled": false,
         "phone_number": "+1234567890",
-        "created_at": "2024-01-01T00:00:00Z",
-        "last_login": "2024-01-15T10:30:00Z"
+        "created_at": "2025-01-01T00:00:00Z",
+        "last_login": "2025-01-15T10:30:00Z"
       }
     ]
   }
@@ -232,7 +232,7 @@
     "is_active": true,
     "is_2fa_enabled": false,
     "phone_number": "+1234567890",
-    "created_at": "2024-01-15T10:30:00Z",
+    "created_at": "2025-01-15T10:30:00Z",
     "last_login": null
   }
 }
@@ -442,8 +442,8 @@
     "academic_status": "ACTIVE",
     "gpa": 0.00,
     "profile_picture": null,
-    "created_at": "2024-01-15T10:30:00Z",
-    "updated_at": "2024-01-15T10:30:00Z"
+    "created_at": "2025-01-15T10:30:00Z",
+    "updated_at": "2025-01-15T10:30:00Z"
   }
 }
 ```
@@ -540,7 +540,7 @@
   "data": [
     {
       "course": "Introduction to Computer Science",
-      "date": "2024-01-15",
+      "date": "2025-01-15",
       "status": "PRESENT"
     }
   ]
@@ -726,8 +726,8 @@
     ],
     "prerequisites_count": 1,
     "is_active": true,
-    "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
+    "created_at": "2025-01-01T00:00:00Z",
+    "updated_at": "2025-01-01T00:00:00Z",
     "active_classes": [ /* Class objects */ ]
   }
 }
@@ -910,12 +910,12 @@
       "student_id": "STU001",
       "class_code": "CS101-A",
       "course_name": "Introduction to Computer Science",
-      "date": "2024-01-15",
+      "date": "2025-01-15",
       "status": "PRESENT",
       "notes": "",
       "recorded_by_name": "Dr. Smith",
-      "created_at": "2024-01-15T09:00:00Z",
-      "updated_at": "2024-01-15T09:00:00Z"
+      "created_at": "2025-01-15T09:00:00Z",
+      "updated_at": "2025-01-15T09:00:00Z"
     }
   ]
 }
@@ -970,7 +970,7 @@
 ```json
 {
   "enrollment": "enrollment_uuid",
-  "date": "2024-01-15",
+  "date": "2025-01-15",
   "status": "PRESENT",
   "notes": "On time"
 }
@@ -1005,7 +1005,7 @@
 ```json
 {
   "class_id": "class_uuid",
-  "date": "2024-01-15",
+  "date": "2025-01-15",
   "attendance_records": [
     {
       "enrollment_id": "enrollment_uuid1",
@@ -1027,7 +1027,7 @@
   "message": "Attendance recorded successfully",
   "data": {
     "class_id": "uuid",
-    "date": "2024-01-15",
+    "date": "2025-01-15",
     "total_records": 25,
     "recorded_by": "Dr. Smith"
   }
@@ -1082,7 +1082,7 @@
       "course_name": "Introduction to Computer Science",
       "section": "A"
     },
-    "date": "2024-01-15",
+    "date": "2025-01-15",
     "attendance_records": [
       {
         "enrollment_id": "uuid",
@@ -1140,10 +1140,10 @@
         "weight_percentage": 30.00,
         "weighted_score": 25.50,
         "graded_by_name": "Dr. Smith",
-        "graded_date": "2024-01-15T10:00:00Z",
+        "graded_date": "2025-01-15T10:00:00Z",
         "comments": "Good work",
-        "created_at": "2024-01-15T10:00:00Z",
-        "updated_at": "2024-01-15T10:00:00Z"
+        "created_at": "2025-01-15T10:00:00Z",
+        "updated_at": "2025-01-15T10:00:00Z"
       }
     ]
   }
@@ -1398,7 +1398,7 @@
         "class_code": "CS101-A",
         "course_name": "Introduction to Computer Science",
         "exam_type": "MIDTERM",
-        "exam_date": "2024-02-15T10:00:00Z",
+        "exam_date": "2025-02-15T10:00:00Z",
         "duration_minutes": 120,
         "room": {
           "id": "uuid",
@@ -1408,8 +1408,8 @@
         },
         "total_marks": 100.00,
         "instructions": "Bring calculator",
-        "created_at": "2024-01-01T00:00:00Z",
-        "updated_at": "2024-01-01T00:00:00Z"
+        "created_at": "2025-01-01T00:00:00Z",
+        "updated_at": "2025-01-01T00:00:00Z"
       }
     ]
   }
@@ -1425,7 +1425,7 @@
 {
   "class_instance": "class_uuid",
   "exam_type": "MIDTERM",
-  "exam_date": "2024-02-15T10:00:00Z",
+  "exam_date": "2025-02-15T10:00:00Z",
   "duration_minutes": 120,
   "room": "room_uuid",
   "total_marks": 100.00,
@@ -1447,7 +1447,7 @@
 - **Request Body:**
 ```json
 {
-  "exam_date": "2024-02-16T10:00:00Z",
+  "exam_date": "2025-02-16T10:00:00Z",
   "room": "new_room_uuid",
   "instructions": "Updated instructions"
 }
@@ -1484,7 +1484,7 @@
           "type": "Grade",
           "id": "uuid"
         },
-        "created_at": "2024-01-15T10:00:00Z"
+        "created_at": "2025-01-15T10:00:00Z"
       }
     ]
   }
@@ -1564,8 +1564,8 @@
         "body": "Please see me after class...",
         "is_read": false,
         "parent_message": null,
-        "created_at": "2024-01-15T10:00:00Z",
-        "updated_at": "2024-01-15T10:00:00Z"
+        "created_at": "2025-01-15T10:00:00Z",
+        "updated_at": "2025-01-15T10:00:00Z"
       }
     ]
   }
@@ -1615,11 +1615,11 @@
         "id": "uuid",
         "sender_name": "John Doe",
         "body": "Thank you, I will.",
-        "created_at": "2024-01-15T11:00:00Z"
+        "created_at": "2025-01-15T11:00:00Z"
       }
     ],
-    "created_at": "2024-01-15T10:00:00Z",
-    "updated_at": "2024-01-15T10:00:00Z"
+    "created_at": "2025-01-15T10:00:00Z",
+    "updated_at": "2025-01-15T10:00:00Z"
   }
 }
 ```
@@ -1668,8 +1668,8 @@
         "status": "PENDING",
         "processed_by_info": null,
         "response": null,
-        "created_at": "2024-01-15T10:00:00Z",
-        "updated_at": "2024-01-15T10:00:00Z"
+        "created_at": "2025-01-15T10:00:00Z",
+        "updated_at": "2025-01-15T10:00:00Z"
       }
     ]
   }
@@ -1739,8 +1739,8 @@
 ```json
 {
   "student_id": "student_uuid",
-  "start_date": "2024-01-01",
-  "end_date": "2024-01-31",
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
   "format": "pdf"
 }
 ```
@@ -1878,7 +1878,7 @@ All endpoints may return the following error responses:
   "errors": {
     "field_name": ["Error message"]
   },
-  "timestamp": "2024-01-15T10:00:00Z"
+  "timestamp": "2025-01-15T10:00:00Z"
 }
 ```
 
@@ -1888,7 +1888,7 @@ All endpoints may return the following error responses:
   "status": "error",
   "message": "Authentication credentials were not provided",
   "code": "AUTHENTICATION_REQUIRED",
-  "timestamp": "2024-01-15T10:00:00Z"
+  "timestamp": "2025-01-15T10:00:00Z"
 }
 ```
 
@@ -1898,7 +1898,7 @@ All endpoints may return the following error responses:
   "status": "error",
   "message": "You do not have permission to perform this action",
   "code": "PERMISSION_DENIED",
-  "timestamp": "2024-01-15T10:00:00Z"
+  "timestamp": "2025-01-15T10:00:00Z"
 }
 ```
 
@@ -1908,7 +1908,7 @@ All endpoints may return the following error responses:
   "status": "error",
   "message": "Resource not found",
   "code": "RESOURCE_NOT_FOUND",
-  "timestamp": "2024-01-15T10:00:00Z"
+  "timestamp": "2025-01-15T10:00:00Z"
 }
 ```
 
@@ -1918,7 +1918,7 @@ All endpoints may return the following error responses:
   "status": "error",
   "message": "An error occurred processing your request",
   "code": "INTERNAL_ERROR",
-  "timestamp": "2024-01-15T10:00:00Z"
+  "timestamp": "2025-01-15T10:00:00Z"
 }
 ```
 

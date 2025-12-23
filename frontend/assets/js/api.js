@@ -1,5 +1,5 @@
 /**
- * SIS Frontend - API Wrapper Functions
+ * Academia Frontend - API Wrapper Functions
  * Centralized API calls for all endpoints
  */
 

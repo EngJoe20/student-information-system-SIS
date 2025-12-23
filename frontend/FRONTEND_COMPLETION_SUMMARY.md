@@ -1,7 +1,7 @@
 # Frontend Completion Summary
 
 ## Overview
-This document summarizes the frontend implementation completed for the Student Information System (SIS).
+This document summarizes the frontend implementation completed for the Student Information System (Academia).
 
 ## Completed Modules
 

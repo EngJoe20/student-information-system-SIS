@@ -228,7 +228,7 @@ performance_factor = random.uniform(0.6, 1.0)  # Adjust range
 ### "Module not found" errors
 ```bash
 # Make sure you're in project root
-cd /path/to/student-information-system-SIS
+cd /path/to/student-information-system-Academia
 
 # Activate virtual environment
 source venv/bin/activate
@@ -348,7 +348,7 @@ if "%DB_HOST%"=="" set DB_HOST=localhost
 if "%DB_PORT%"=="" set DB_PORT=5432
 
 echo ================================
-echo    SIS Database Backup
+echo    Academia Database Backup
 echo ================================
 echo.
 

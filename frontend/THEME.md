@@ -1,4 +1,4 @@
-# SIS Frontend - Theme Documentation
+# Academia Frontend - Theme Documentation
 
 ## Color Palette
 

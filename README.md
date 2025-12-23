@@ -1,4 +1,4 @@
-# AcademiaHub - Student Information System
+# Academia - Student Information System
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.0-green.svg)](https://www.djangoproject.com/)
@@ -74,7 +74,7 @@ A comprehensive Student Information System built with Django REST Framework, fea
 ## 📁 Project Structure
 
 ```text
-student-information-system-SIS/
+student-information-system-Academia/
 │
 ├── venv/                          # Virtual environment (not in git)
 │
@@ -253,7 +253,7 @@ git --version
 
 ```bash
 git clone <repository-url>
-cd student-information-system-SIS
+cd student-information-system-Academia
 ```
 
 2. **Create virtual environment**
@@ -634,8 +634,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔄 Version History
 
-- **v1.0.0** (2024-12) - Initial release
-  - Complete SIS implementation
+- **v1.0.0** (2025-12) - Initial release
+  - Complete Academia implementation
   - 80+ API endpoints
   - Full documentation
 

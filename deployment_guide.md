@@ -145,7 +145,7 @@ sudo nano /etc/systemd/system/sis-gunicorn.service
 Add the following content:
 ```ini
 [Unit]
-Description=SIS Gunicorn daemon
+Description=Academia Gunicorn daemon
 After=network.target
 
 [Service]
@@ -279,7 +279,7 @@ sudo nano /etc/systemd/system/sis-celery.service
 
 ```ini
 [Unit]
-Description=SIS Celery Worker
+Description=Academia Celery Worker
 After=network.target
 
 [Service]

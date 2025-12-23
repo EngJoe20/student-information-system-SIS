@@ -57,7 +57,7 @@ def student_profile(student_user):
         gender='MALE',
         address="123 St",
         city="City",
-        enrollment_date='2024-01-01'
+        enrollment_date='2025-01-01'
     )
 
 @pytest.fixture

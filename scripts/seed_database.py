@@ -197,7 +197,7 @@ class DatabaseSeeder:
                     'country': random.choice(['Egypt', 'USA']),
                     'emergency_contact_name': f'{first_name} {last_name} Sr.',
                     'emergency_contact_phone': f'+19876543{i:02d}',
-                    'enrollment_date': date(2024, 9, 1),
+                    'enrollment_date': date(2025, 9, 1),
                     'academic_status': 'ACTIVE',
                     'gpa': round(random.uniform(2.5, 4.0), 2)
                 }

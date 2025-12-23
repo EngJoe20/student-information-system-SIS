@@ -89,7 +89,7 @@ def class_instance(course, instructor):
         class_code='CS101-A',
         section='A',
         semester='FALL',
-        academic_year=2024,
+        academic_year=2025,
         max_capacity=30
     )
 

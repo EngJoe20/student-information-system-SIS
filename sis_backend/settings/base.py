@@ -1,5 +1,5 @@
 """
-Base Django settings for SIS Backend project.
+Base Django settings for Academia Backend project.
 """
 import os
 from pathlib import Path

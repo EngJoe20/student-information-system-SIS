@@ -1,5 +1,5 @@
 """
-Generate comprehensive test data for SIS system.
+Generate comprehensive test data for Academia system.
 
 This script generates realistic test data including:
 - Multiple semesters of historical data

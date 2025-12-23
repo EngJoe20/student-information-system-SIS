@@ -12,7 +12,7 @@
 
 ```bash
 git clone <your-repo-url>
-cd student-information-system-SIS
+cd student-information-system-Academia
 ```
 
 ### Step 2: Create Virtual Environment

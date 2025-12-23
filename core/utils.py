@@ -34,7 +34,7 @@ def generate_qr_code(user, secret):
     """Generate QR code for 2FA setup."""
     totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
         name=user.email,
-        issuer_name='SIS - Student Information System'
+        issuer_name='Academia - Student Information System'
     )
     
     qr = qrcode.QRCode(version=1, box_size=10, border=5)

@@ -1,5 +1,5 @@
 /**
- * SIS Frontend - Authentication Module
+ * Academia Frontend - Authentication Module
  * Handles JWT authentication, token management, and user session
  */
 

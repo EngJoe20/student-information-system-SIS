@@ -135,7 +135,7 @@ def class_instance(course, room):
         class_code='CS101-A',
         section='A',
         semester='FALL',
-        academic_year=2024,
+        academic_year=2025,
         max_capacity=30,
         room=room
     )
@@ -198,7 +198,7 @@ class TestStudentCRUD:
             "country": "USA",
             "emergency_contact_name": "Mom",
             "emergency_contact_phone": "555-5555",
-            "enrollment_date": "2024-01-01"
+            "enrollment_date": "2025-01-01"
         }
         
         response = authenticated_admin_client.post(url, payload, format='json')

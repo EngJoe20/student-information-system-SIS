@@ -1,5 +1,5 @@
 """
-Main URL configuration for SIS Backend project.
+Main URL configuration for Academia Backend project.
 """
 from django.contrib import admin
 from django.urls import path, include
@@ -14,7 +14,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Student Information System API",
         default_version='v1',
-        description="Complete API documentation for SIS Backend",
+        description="Complete API documentation for Academia Backend",
         terms_of_service="https://www.yourapp.com/terms/",
         contact=openapi.Contact(email="admin@sis.com"),
         license=openapi.License(name="MIT License"),

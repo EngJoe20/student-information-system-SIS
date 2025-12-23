@@ -1,5 +1,5 @@
 /**
- * SIS Frontend - Configuration
+ * Academia Frontend - Configuration
  * API endpoints and application settings
  */
 

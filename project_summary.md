@@ -1,8 +1,8 @@
-# AcademiaHub - Project Summary
+# Academia - Project Summary
 
 ## Project Overview
 
-**AcademiaHub** (formerly Student Information System) is a comprehensive Django REST Framework (DRF) based backend application designed to manage all aspects of academic administration. The system provides a robust API for managing students, courses, enrollments, attendance, grades, notifications, and administrative functions.
+**Academia** (formerly Student Information System) is a comprehensive Django REST Framework (DRF) based backend application designed to manage all aspects of academic administration. The system provides a robust API for managing students, courses, enrollments, attendance, grades, notifications, and administrative functions.
 
 **Technology Stack:**
 - **Backend Framework:** Django 5.0

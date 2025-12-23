@@ -56,7 +56,7 @@ def student_profile(student_user):
         student_id='STU001',
         date_of_birth='2000-01-01',
         gender='MALE',
-        enrollment_date='2024-01-01'
+        enrollment_date='2025-01-01'
     )
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def class_instance(course, instructor, room):
         class_code='CS101-A',
         section='A',
         semester='FALL',
-        academic_year=2024,
+        academic_year=2025,
         max_capacity=30,
         room=room
     )
@@ -236,7 +236,7 @@ class TestStudentGradeView:
             student_id='STU002',
             date_of_birth='2000-01-01',
             gender='FEMALE',
-            enrollment_date='2024-01-01'
+            enrollment_date='2025-01-01'
         )
         
         try:

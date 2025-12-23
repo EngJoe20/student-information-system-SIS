@@ -1,4 +1,4 @@
-# SIS Frontend - Testing Guide
+# Academia Frontend - Testing Guide
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@
 
 ```bash
 # Navigate to project root
-cd E:\student-information-system-SIS
+cd E:\student-information-system-Academia
 
 # Activate virtual environment (if using one)
 # Windows:

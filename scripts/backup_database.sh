@@ -57,7 +57,7 @@ DB_PORT="${DB_PORT:-5432}"
 
 print_header() {
     echo -e "${BLUE}================================${NC}"
-    echo -e "${BLUE}   SIS Database Backup${NC}"
+    echo -e "${BLUE}   Academia Database Backup${NC}"
     echo -e "${BLUE}================================${NC}"
 }
 
@@ -244,7 +244,7 @@ create_manifest() {
     print_info "Creating backup manifest..."
     
     {
-        echo "SIS Database Backup Manifest"
+        echo "Academia Database Backup Manifest"
         echo "============================"
         echo "Backup Date: $(date)"
         echo "Backup Type: $BACKUP_TYPE"

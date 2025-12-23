@@ -1,4 +1,4 @@
-# AcademiaHub Frontend - Architecture Documentation
+# Academia Frontend - Architecture Documentation
 
 ## Frontend Architecture Design
 
