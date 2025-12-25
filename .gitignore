@@ -58,7 +58,7 @@ logs/
 *.log
 
 # Django settings (local/dev only)
-sis_backend/settings/*development*.py
+# sis_backend/settings/*development*.py
 
 # Django static files
 /staticfiles/
