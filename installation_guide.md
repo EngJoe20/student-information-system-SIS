@@ -72,6 +72,7 @@ python -m http.server 8080
 ### Step 7: Access the Application
 
 - **API Root**: http://localhost:8000/
+- **frontend Root**: http://localhost:8080/
 - **Admin Panel**: http://localhost:8000/admin/
 - **Swagger API Docs**: http://localhost:8000/swagger/
 - **ReDoc**: http://localhost:8000/redoc/

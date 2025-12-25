@@ -1,20 +1,49 @@
 <div align="center">
 
-# 🎓 ACADEMIA
-### Student Information System
+<!-- Animated Header -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=200&section=header&text=ACADEMIA&fontSize=80&fontAlignY=35&animation=twinkling&fontColor=fff&desc=Student%20Information%20System&descAlignY=55&descSize=25" width="100%"/>
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Django](https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django&logoColor=white)
-![DRF](https://img.shields.io/badge/DRF-3.14-ff1709?style=for-the-badge&logo=django&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge)
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=3000&pause=1000&color=2E9EF7&center=true&vCenter=true&multiline=false&repeat=true&width=600&lines=Production-Ready+SIS+Platform;80%2B+API+Endpoints;Built+with+Django+%26+DRF;Secure+%7C+Scalable+%7C+Modern" alt="Typing SVG" />
+</p>
 
-**A modern, comprehensive Student Information System built with Django REST Framework**
+<!-- Animated Badges -->
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white&labelColor=1e1e1e" alt="Python"/>
+  <img src="https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django&logoColor=white&labelColor=1e1e1e" alt="Django"/>
+  <img src="https://img.shields.io/badge/DRF-3.14-ff1709?style=for-the-badge&logo=django&logoColor=white&labelColor=1e1e1e" alt="DRF"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=1e1e1e" alt="PostgreSQL"/>
+</p>
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [API](#-api-documentation) • [Deployment](#-deployment)
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&labelColor=1e1e1e" alt="License"/>
+  <img src="https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge&labelColor=1e1e1e&logo=checkmarx&logoColor=white" alt="Status"/>
+  <img src="https://img.shields.io/badge/API_Endpoints-80+-blue?style=for-the-badge&labelColor=1e1e1e&logo=swagger&logoColor=white" alt="API"/>
+  <img src="https://img.shields.io/badge/Coverage-85%25+-success?style=for-the-badge&labelColor=1e1e1e&logo=codecov&logoColor=white" alt="Coverage"/>
+</p>
+
+<!-- Quick Navigation -->
+<p align="center">
+  <a href="#-features">
+    <img src="https://img.shields.io/badge/⭐_Features-2E9EF7?style=for-the-badge&labelColor=1e1e1e" alt="Features"/>
+  </a>
+  <a href="#-quick-start">
+    <img src="https://img.shields.io/badge/🚀_Quick_Start-2E9EF7?style=for-the-badge&labelColor=1e1e1e" alt="Quick Start"/>
+  </a>
+  <a href="#-api-documentation">
+    <img src="https://img.shields.io/badge/📡_API_Docs-2E9EF7?style=for-the-badge&labelColor=1e1e1e" alt="API"/>
+  </a>
+  <a href="#-deployment">
+    <img src="https://img.shields.io/badge/🚢_Deploy-2E9EF7?style=for-the-badge&labelColor=1e1e1e" alt="Deploy"/>
+  </a>
+</p>
 
 </div>
+
+<!-- Animated Divider -->
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ---
 
@@ -36,9 +65,11 @@
 - [Contributing](#-contributing)
 - [License](#-license)
 
----
-
 ## 🌟 Overview
+
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="1000">
+</div>
 
 **Academia** is a production-ready, feature-rich Student Information System (SIS) designed to streamline academic administration. Built with Django REST Framework, it provides a robust API for managing every aspect of educational institutions - from student enrollment to grade management, attendance tracking, and beyond.
 
@@ -51,9 +82,21 @@
 🎯 **Role-Based** - Granular permissions for Admin, Registrar, Instructor, and Student roles  
 🚀 **Production Ready** - Complete documentation, testing, and deployment guides  
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🎯 Features
+
+<div align="center">
+
+### 🚀 **Powerful Features for Modern Academic Management**
+
+<img src="https://user-images.githubusercontent.com/74038190/212284087-bbe7e430-757e-4901-90bf-4cd2ce3e1852.gif" width="50">
+
+</div>
 
 <details>
 <summary><b>🔐 Authentication & Authorization</b></summary>
@@ -149,9 +192,23 @@
 
 </details>
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🛠️ Technology Stack
+
+<div align="center">
+
+```
+╔══════════════════════════════════════════════════════════╗
+║         🏗️  BUILT WITH MODERN TECHNOLOGIES  🏗️        ║
+╚══════════════════════════════════════════════════════════╝
+```
+
+</div>
 
 ### Backend
 
@@ -189,9 +246,19 @@ black==23.12.1                        # Code formatting
 flake8==7.0.0                         # Linting
 ```
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🏗 System Architecture
+
+<div align="center">
+
+### 🎨 **Clean Architecture & Modern Design Patterns**
+
+</div>
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -228,9 +295,21 @@ flake8==7.0.0                         # Linting
 | `dashboard` | Role-specific dashboard statistics |
 | `core` | Shared utilities, audit logging, and reports |
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🚀 Quick Start
+
+<div align="center">
+
+### ⚡ **Get Up and Running in 5 Minutes!**
+
+<img src="https://user-images.githubusercontent.com/74038190/216122041-518ac897-8d92-4c6b-9b3f-ca01dcaf38ee.png" width="50" /> <img src="https://user-images.githubusercontent.com/74038190/216122069-5b8169d7-1d8e-4a13-b245-a8e4176c99f8.png" width="50" />
+
+</div>
 
 ### Prerequisites
 
@@ -494,6 +573,16 @@ Academia provides **auto-generated, interactive API documentation**:
 
 **Total: 80+ API Endpoints**
 
+<div align="center">
+
+```diff
++ 🎉 Complete RESTful API with comprehensive documentation
++ 🔒 Swagger UI & ReDoc available out of the box
++ ⚡ Fast, efficient, and well-structured endpoints
+```
+
+</div>
+
 ### Example API Calls
 
 **Authentication:**
@@ -587,9 +676,27 @@ For complete API reference, visit the Swagger documentation.
 
 **No restrictions** - complete control over the system
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🧪 Testing
+
+<div align="center">
+
+### 📊 **Comprehensive Test Coverage**
+
+```
+┌────────────────────────────┐
+│   ✅ 85%+ Code Coverage   │
+│   🛡️ Pytest Framework      │
+│   🎯 Quality Assured      │
+└────────────────────────────┘
+```
+
+</div>
 
 Academia includes a comprehensive test suite.
 
@@ -624,9 +731,21 @@ open htmlcov/index.html
 
 See `pytest.ini` for test configuration.
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🚢 Deployment
+
+<div align="center">
+
+### 🚀 **Production-Ready Deployment**
+
+<img src="https://user-images.githubusercontent.com/74038190/213866269-5d00981c-7c98-46d7-8a8e-16f462f15227.gif" width="200">
+
+</div>
 
 ### Development Deployment
 
@@ -787,9 +906,28 @@ student-information-system-SIS/
 └── project_summary.md             # Complete project overview
 ```
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 🔒 Security Features
+
+<div align="center">
+
+### 🛡️ **Enterprise-Grade Security**
+
+<img src="https://user-images.githubusercontent.com/74038190/216644497-1951db19-8f3d-4e44-ac08-8e9d7e0d94a7.gif" width="200">
+
+```ascii
+┌────────────────────────────────────────┐
+│  🎯 SECURE BY DEFAULT 🎯            │
+│  JWT + 2FA + RBAC + Audit Logging  │
+└────────────────────────────────────────┘
+```
+
+</div>
 
 Academia implements industry-standard security practices:
 
@@ -1041,18 +1179,48 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - [ ] Multi-language support
 - [ ] Advanced data analytics dashboard
 
----
+<br>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="900">
+</p>
 
 ## 📊 Project Statistics
 
-| Metric | Value |
-|--------|-------|
-| **API Endpoints** | 80+ |
-| **Database Models** | 13 |
-| **User Roles** | 4 |
-| **Lines of Code** | 15,000+ |
-| **Test Coverage** | 85%+ |
-| **Documentation Pages** | 10+ |
+<div align="center">
+
+### 🔥 **By the Numbers**
+
+<img src="https://user-images.githubusercontent.com/74038190/212749447-bfb7e725-6987-49d9-ae85-2015e3e7cc41.gif" width="500">
+
+</div>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/API_Endpoints-80+-FF6B6B?style=for-the-badge&logo=swagger&logoColor=white"/>
+    </td>
+    <td align="center">
+      <img src="https://img.shields.io/badge/Database_Models-13-4ECDC4?style=for-the-badge&logo=postgresql&logoColor=white"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/User_Roles-4-95E1D3?style=for-the-badge&logo=shield&logoColor=white"/>
+    </td>
+    <td align="center">
+      <img src="https://img.shields.io/badge/Lines_of_Code-15,000+-F38181?style=for-the-badge&logo=code&logoColor=white"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/Test_Coverage-85%25+-A8E6CF?style=for-the-badge&logo=pytest&logoColor=white"/>
+    </td>
+    <td align="center">
+      <img src="https://img.shields.io/badge/Documentation-10+_Pages-FFDAB9?style=for-the-badge&logo=markdown&logoColor=white"/>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -1089,23 +1257,47 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
+<br>
+
 <div align="center">
 
 ## 🔄 Version History
 
-**v1.0.0** (December 2025)
-- Initial production release
-- Complete SIS implementation
-- 80+ API endpoints
-- Full documentation
-- Comprehensive testing
+```diff
+@@ v1.0.0 - December 2025 @@
++ Initial production release
++ Complete SIS implementation
++ 80+ API endpoints
++ Full documentation
++ Comprehensive testing
+```
 
----
+<br>
+
+<!-- Animated Footer -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=150&section=footer" width="100%"/>
 
 ### ⭐ If you find Academia useful, please consider giving it a star!
 
+<img src="https://user-images.githubusercontent.com/74038190/212284158-e840e285-664b-44d7-b79b-e264b5e54825.gif" width="400">
+
 **Built with ❤️ using Django & Django REST Framework**
 
-[Back to Top](#-academia)
+<p align="center">
+  <img src="https://img.shields.io/github/stars/EngJoe20/student-information-system-SIS?style=social" alt="GitHub stars"/>
+  <img src="https://img.shields.io/github/forks/EngJoe20/student-information-system-SIS?style=social" alt="GitHub forks"/>
+  <img src="https://img.shields.io/github/watchers/EngJoe20/student-information-system-SIS?style=social" alt="GitHub watchers"/>
+</p>
+
+<p align="center">
+  <a href="#-academia">
+    <img src="https://img.shields.io/badge/⬆️_Back_to_Top-2E9EF7?style=for-the-badge&labelColor=1e1e1e" alt="Back to Top"/>
+  </a>
+</p>
+
+<!-- Visitor Counter -->
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=EngJoe20&repo=student-information-system-SIS&color=blueviolet&style=for-the-badge&label=VISITORS" alt="Visitor Count"/>
+</p>
 
 </div>
