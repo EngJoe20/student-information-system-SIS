@@ -363,6 +363,7 @@ python -m http.server 8080
 | Service | URL |
 |---------|-----|
 | **API Root** | http://localhost:8000/ |
+| **Frontend Root** | http://localhost:8080/ |
 | **Admin Panel** | http://localhost:8000/admin/ |
 | **Swagger API Docs** | http://localhost:8000/swagger/ |
 | **ReDoc API Docs** | http://localhost:8000/redoc/ |
