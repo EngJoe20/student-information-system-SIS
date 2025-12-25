@@ -1155,7 +1155,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### Future Enhancements
 
-#### Phase 2 (Q1 2026)
+#### Phase 2 (Future)
 
 - [ ] Learning Management System (LMS) integration
 - [ ] Financial management module
@@ -1163,7 +1163,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - [ ] Parent portal
 - [ ] Mobile application (iOS/Android)
 
-#### Phase 3 (Q2 2026)
+#### Phase 3 (Future)
 
 - [ ] AI-powered predictive analytics
 - [ ] Advanced scheduling algorithms
