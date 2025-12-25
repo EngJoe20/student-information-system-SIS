@@ -196,7 +196,7 @@ Based on the pattern established, create similar pages for:
 ## Testing
 
 1. Start Django backend: `python manage.py runserver`
-2. Serve frontend files (see Setup Instructions)
+2. Serve frontend files: `python -m http.server 8080`
 3. Login with test credentials
 4. Test each role's dashboard and permissions
 

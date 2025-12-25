@@ -138,8 +138,11 @@ python scripts/seed_database.py
 # 5. Generate comprehensive test data (optional)
 python scripts/generate_test_data.py
 
-# 6. Start server
+# 6. Start server for backend
 python manage.py runserver
+
+# 7. Start server for frontend
+python -m http.server 8080
 ```
 
 ### Development Workflow

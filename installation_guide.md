@@ -62,7 +62,11 @@ python manage.py createsuperuser
 ### Step 6: Run Development Server
 
 ```bash
+## server for backend
 python manage.py runserver
+
+## server for frontend
+python -m http.server 8080
 ```
 
 ### Step 7: Access the Application
@@ -340,8 +344,11 @@ python manage.py createsuperuser
 # Collect static files
 python manage.py collectstatic
 
-# Run development server
+# Run development server for backend
 python manage.py runserver
+
+# Run development server for frontend
+python -m http.server 8080
 
 # Run on custom port
 python manage.py runserver 0.0.0.0:8080

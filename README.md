@@ -274,6 +274,9 @@ python scripts/seed_database.py
 
 # 8. Run development server
 python manage.py runserver
+
+# 9. Run development server for frontend
+python -m http.server 8080
 ```
 
 ### 🎉 Access the Application
@@ -385,7 +388,11 @@ python manage.py collectstatic --noinput
 #### 7. Run Development Server
 
 ```bash
+## server for backend
 python manage.py runserver
+
+## server for frontend
+python -m http.server 8080
 ```
 
 Visit http://localhost:8000 to see the API root.
@@ -624,7 +631,11 @@ See `pytest.ini` for test configuration.
 ### Development Deployment
 
 ```bash
+## server for backend
 python manage.py runserver
+
+## server for frontend
+python -m http.server 8080
 ```
 
 ### Production Deployment
@@ -851,8 +862,11 @@ python manage.py createsuperuser
 # Load test data
 python scripts/seed_database.py
 
-# Run development server
+# Run development server for backend
 python manage.py runserver
+
+# Run development server for frontend
+python -m http.server 8080
 ```
 
 ### Code Quality Tools

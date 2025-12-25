@@ -32,8 +32,11 @@ python manage.py migrate
 # Create superuser (if not exists)
 python manage.py createsuperuser
 
-# Start development server
+# Start development server for backend
 python manage.py runserver
+
+# Start development server for frontend
+python -m http.server 8080
 ```
 
 Backend should be running at: `http://localhost:8000`
